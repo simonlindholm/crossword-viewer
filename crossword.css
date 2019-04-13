@@ -1,0 +1,78 @@
+table {
+	border-collapse: collapse;
+	border: 2px solid black;
+	float: left;
+}
+td {
+	border: 1px solid black;
+	background-color: white;
+	width: 39px;
+	height: 42px;
+	padding: 0;
+	overflow: hidden;
+}
+td.blocked {
+	background-color: black;
+}
+td.clue:before {
+	content: attr(data-cluenum);
+	position: absolute;
+	margin-left: 2px;
+	margin-top: 0px;
+	font: 13px arial;
+}
+td.special-C:before {
+	margin-left: 3px;
+}
+.letter-container {
+	position: relative;
+}
+.letter {
+	font: 22px arial;
+	text-transform: uppercase;
+	position: absolute;
+	display: block;
+	width: 100%;
+	text-align: center;
+	margin-top: 9px;
+	margin-left: 0px;
+}
+td:after {
+	height: 100%;
+	display: block;
+	content: "\00a0";
+}
+td.special-C:after {
+	width: 2px;
+	background-color: black;
+	height: 100%;
+	display: block;
+	content: "\00a0";
+}
+td.special-A {
+	background-image: url(arrow-tr.png);
+	background-repeat: no-repeat;
+	background-position: top 2px right 2px;
+}
+td.special-B {
+	background-image: url(arrow-bl.png);
+	background-repeat: no-repeat;
+	background-position: bottom 2px left 2px;
+}
+td.special-C {
+	background-image: url(arrow-tl.png);
+	background-repeat: no-repeat;
+	background-position: top 2px left 19px;
+}
+
+.clues-dir {
+	float: left;
+	margin: 0 6px;
+	width: 370px;
+}
+h2 {
+	margin: 10px;
+}
+.index {
+	font-weight: bold;
+}
