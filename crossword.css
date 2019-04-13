@@ -1,3 +1,9 @@
+html {
+	font-size: 10px;
+}
+body {
+	font-size: auto;
+}
 table {
 	border-collapse: collapse;
 	border: 2px solid black;
@@ -6,10 +12,12 @@ table {
 td {
 	border: 1px solid black;
 	background-color: white;
-	width: 39px;
-	height: 42px;
+	width: 3.9rem;
+	height: 4.2rem;
 	padding: 0;
 	overflow: hidden;
+	color-adjust: exact;
+	-webkit-print-color-adjust: exact;
 }
 td.blocked {
 	background-color: black;
@@ -19,7 +27,7 @@ td.clue:before {
 	position: absolute;
 	margin-left: 2px;
 	margin-top: 0px;
-	font: 13px arial;
+	font: 1.3rem arial;
 }
 td.special-C:before {
 	margin-left: 3px;
@@ -28,14 +36,14 @@ td.special-C:before {
 	position: relative;
 }
 .letter {
-	font: 22px arial;
+	font: 2.2rem arial;
 	text-transform: uppercase;
 	position: absolute;
 	display: block;
 	width: 100%;
 	text-align: center;
-	margin-top: 9px;
-	margin-left: 0px;
+	margin-top: 0.9rem;
+	margin-left: 0;
 }
 td:after {
 	height: 100%;
@@ -48,6 +56,8 @@ td.special-C:after {
 	height: 100%;
 	display: block;
 	content: "\00a0";
+	color-adjust: exact;
+	-webkit-print-color-adjust: exact;
 }
 td.special-A {
 	background-image: url(arrow-tr.png);
@@ -69,10 +79,31 @@ td.special-C {
 	float: left;
 	margin: 0 6px;
 	width: 370px;
+	font-size: 16px;
 }
 h2 {
 	margin: 10px;
 }
 .index {
 	font-weight: bold;
+}
+
+@media print {
+/* @page {size: landscape}, remove clear: both? */
+html {
+	font-size: 8px;
+}
+h2 {
+	margin: 10px 5px 5px 5px;
+}
+#clues {
+	clear: both;
+}
+.clues-dir {
+	float: left;
+	margin: 0 6px;
+	width: 300px;
+	font: 1.8rem Georgia, serif;
+	line-height: 1.3;
+}
 }
