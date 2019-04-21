@@ -15,7 +15,7 @@ var tableCells = [];
 var vertText = "Lodrätt";
 var horText = "Vågrätt";
 
-var alphabet = "abcdefghijklmnopqrstuvwxyzåäö0123456789-_/\"'?!@$%^&*()=+`[]{}.,:;<>|\\";
+var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ0123456789-_/\"'?!@$%^&*()=+`[]{}.,:;<>|\\";
 
 var VERT = 1, HOR = 2, REVERSE = 4;
 
@@ -183,8 +183,8 @@ function setValueAndAdvance(val) {
 function handleKeyDown(event) {
 	let key = event.key;
 	if (!key) return;
-	if (key.length === 1 && currentCell && alphabet.indexOf(key.toLowerCase()) !== -1) {
-		setValueAndAdvance(key.toLowerCase());
+	if (key.length === 1 && currentCell && alphabet.indexOf(key.toUpperCase()) !== -1) {
+		setValueAndAdvance(key.toUpperCase());
 		event.preventDefault();
 		event.stopPropagation();
 		return;
@@ -268,7 +268,7 @@ function init() {
 			for (let cell of cells) {
 				word += grid[cell.y][cell.x];
 			}
-			word = word.toLowerCase();
+			word = word.toUpperCase();
 			if (ct == clues[cat].length || !clues[cat].some(c => c.secret === word)) {
 				addError("Missing clue for " + cat + " word " + word);
 				return;
