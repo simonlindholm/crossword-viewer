@@ -177,6 +177,16 @@ function setValueAndAdvance(val) {
 	}
 }
 
+function clearGrid() {
+	unselect();
+	for (let y = 0; y < height; y++) {
+		for (let x = 0; x < width; x++) {
+			if (openSquare(y, x))
+				setCellValue(y, x, '');
+		}
+	}
+}
+
 function handleKeyDown(event) {
 	let key = event.key;
 	if (!key) return;
@@ -237,6 +247,10 @@ function handleKeyDown(event) {
 
 function init() {
 	var errorCont = document.getElementById("errors");
+	var tbody = document.getElementById("grid").querySelector("tbody");
+	var clueCont = document.getElementById("clues");
+	var btnCont = document.getElementById("buttons");
+
 	function addError(msg) {
 		var div = document.createElement("div");
 		div.textContent = msg;
@@ -313,8 +327,6 @@ function init() {
 	}
 
 	var clueNum = 0;
-	var tbody = document.querySelector("tbody");
-	var clueCont = document.getElementById("clues");
 	for (var i = 0; i < height; i++) {
 		var tr = document.createElement("tr");
 		tableCells.push([]);
@@ -402,6 +414,17 @@ function init() {
 			};
 		}
 	}
+
+	function addButton(text, cls, fn) {
+		let elem = document.createElement('input');
+		elem.type = 'button';
+		elem.value = text;
+		elem.onclick = fn;
+		for (let cl of cls)
+			elem.classList.add(cl);
+		btnCont.appendChild(elem);
+	}
+	addButton($.clear, [], clearGrid);
 
 	document.addEventListener("keydown", handleKeyDown);
 }
