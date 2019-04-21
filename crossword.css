@@ -43,11 +43,14 @@ td.special-C:before {
 	font: 2.2rem arial;
 	text-transform: uppercase;
 	position: absolute;
-	display: block;
+	display: none;
 	width: 100%;
 	text-align: center;
 	margin-top: 0.9rem;
 	margin-left: 0;
+}
+.letter.show {
+	display: block;
 }
 td:after {
 	height: 100%;

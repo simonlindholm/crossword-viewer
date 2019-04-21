@@ -121,15 +121,17 @@ function go() {
 				td.classList.add("clue");
 				td.dataset.cluenum = clueNum;
 			}
-			if (showLetters && special[i][j] != '#') {
-				var letterCont = document.createElement("div");
-				letterCont.classList.add("letter-container");
+			var letterCont = document.createElement("div");
+			letterCont.classList.add("letter-container");
+			if (special[i][j] != '#') {
 				var letter = document.createElement("span");
 				letter.classList.add("letter");
+				if (showLetters)
+					letter.classList.add("show");
 				letter.textContent = grid[i][j];
 				letterCont.appendChild(letter);
-				td.appendChild(letterCont);
 			}
+			td.appendChild(letterCont);
 			tr.appendChild(td);
 		}
 		tbody.appendChild(tr);
