@@ -9,6 +9,9 @@ special = special.trim().split('\n');
 vertClues = vertClues.trim().split('\n');
 horClues = horClues.trim().split('\n');
 
+var cellClues = [];
+var tableCells = [];
+
 var vertText = "Lodrätt";
 var horText = "Vågrätt";
 
@@ -21,6 +24,25 @@ class Clue {
 		this.secret = parts[0];
 		this.clue = parts.slice(1).join(" - ");
 		this.index = -1;
+		this.cells = [];
+		this.elem = null;
+	}
+
+	findCellIndex(y, x) {
+		for (let i = 0; i < this.cells.length; i++) {
+			if (this.cells[i].y === y && this.cells[i].x === x)
+				return i;
+		}
+		return -1;
+	}
+
+	directionAt(y, x) {
+		let ind = this.findCellIndex(y, x);
+		console.assert(this.cells.length >= 2);
+		let otherInd = ind + 1;
+		if (otherInd === this.cells.length)
+			otherInd -= 2;
+		return (this.cells[ind].y === this.cells[otherInd].y);
 	}
 }
 
@@ -33,6 +55,56 @@ var height = special.length, width = special[0].length;
 
 function descSq(i, j) {
 	return "Row " + (i+1) + " col " + (j+1);
+}
+
+var currentCell = null;
+var highlightedCells = [];
+
+function toggleClueForCell(i, j) {
+	let cands = cellClues[i][j];
+	let ind = cands.indexOf(currentCell.clue);
+	console.assert(ind !== -1);
+	return cands[(ind + 1) % cands.length];
+}
+
+function getClueForCell(i, j) {
+	if (!currentCell || cellClues[i][j].length === 1) return cellClues[i][j][0];
+	if (currentCell.y === i && currentCell.x === j) {
+		// Click on same square: change direction
+		return toggleClueForCell(i, j);
+	}
+	let curClue = currentCell.clue;
+	if (curClue.findCellIndex(i, j) !== -1) {
+		// Click on same clue: preserve direction
+		return curClue;
+	}
+	// Try to preserve direction
+	let dir = curClue.directionAt(currentCell.y, currentCell.x);
+	let cands = cellClues[i][j].filter(c => c.directionAt(i, j) === dir);
+	if (!cands.length)
+		cands = cellClues[i][j];
+	// If still multiple candidates, take the shortest one
+	let ret = cands[0];
+	for (let i = 1; i < cands.length; i++) {
+		if (cands[i].cells.length < ret.cells.length)
+			ret = cands[i];
+	}
+	return ret;
+}
+
+function selectCell(i, j, clue) {
+	currentCell = {y: i, x: j, clue};
+	for (let cell of highlightedCells) {
+		let td = tableCells[cell.y][cell.x];
+		td.classList.remove("highlighted");
+		td.classList.remove("selected");
+	}
+	highlightedCells = clue.cells;
+	tableCells[i][j].classList.add("selected");
+	for (let cell of highlightedCells) {
+		let td = tableCells[cell.y][cell.x];
+		td.classList.add("highlighted");
+	}
 }
 
 function init() {
@@ -76,6 +148,10 @@ function init() {
 			}
 		}
 
+		for (let cell of cells) {
+			cellClues[cell.y][cell.x].push(clues[cat][ct]);
+		}
+
 		clues[cat][ct].index = index;
 		clues[cat][ct].cells = cells;
 		clueCtrs[cat]++;
@@ -103,6 +179,9 @@ function init() {
 	for (var i = 0; i < height; i++) {
 		if (haveGrid) console.assert(grid[i].length == width);
 		console.assert(special[i].length == width);
+		cellClues.push([]);
+		for (var j = 0; j < width; j++)
+			cellClues[i].push([]);
 	}
 
 	var clueNum = 0;
@@ -110,8 +189,10 @@ function init() {
 	var clueCont = document.getElementById("clues");
 	for (var i = 0; i < height; i++) {
 		var tr = document.createElement("tr");
+		tableCells.push([]);
 		for (var j = 0; j < width; j++) {
 			var td = document.createElement("td");
+			tableCells[i].push(td);
 			if (special[i][j] == '#')
 				td.classList.add("blocked");
 			else if (special[i][j] != '.')
@@ -163,6 +244,7 @@ function init() {
 			row.appendChild(index);
 			let cl = document.createElement("span");
 			cl.textContent = clue.clue;
+			clue.elem = cl;
 			row.appendChild(cl);
 			cont.appendChild(row);
 		}
@@ -174,6 +256,24 @@ function init() {
 	for (let cat of ['hor', 'vert']) {
 		if (clueCtrs[cat] < clues[cat].length) {
 			addError("Unused clue for word " + clues[cat][clueCtrs[cat]].secret);
+		}
+	}
+
+	for (let i = 0; i < height; i++) {
+		for (let j = 0; j < width; j++) {
+			if (special[i][j] == '#') continue;
+			tableCells[i][j].onclick = function() {
+				var clue = getClueForCell(i, j);
+				selectCell(i, j, clue);
+			};
+		}
+	}
+
+	for (let cat of ['hor', 'vert']) {
+		for (let clue of clues[cat]) {
+			clue.elem.onclick = function() {
+				selectCell(clue.cells[0].y, clue.cells[0].x, clue);
+			};
 		}
 	}
 }

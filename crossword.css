@@ -95,6 +95,15 @@ h2 {
 	font-weight: bold;
 }
 
+@media screen {
+td.highlighted {
+	background-color: #ffff80;
+}
+td.selected {
+	background-color: #e0e040;
+}
+}
+
 @media print {
 /* @page {size: landscape}, remove clear: both? */
 html {
