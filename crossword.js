@@ -71,17 +71,17 @@ function descSq(i, j) {
 var currentCell = null;
 var highlightedCells = [];
 
-function toggleClueForCell(i, j) {
-	let cands = cellClues[i][j];
+function toggleClueForCell(y, x) {
+	let cands = cellClues[y][x];
 	let ind = cands.indexOf(currentCell.clue);
 	console.assert(ind !== -1);
 	return cands[(ind + 1) % cands.length];
 }
 
-function getClueForCellDirection(i, j, dir) {
-	let cands = cellClues[i][j].filter(c => c.directionAt(i, j) === dir);
+function getClueForCellDirection(y, x, dir) {
+	let cands = cellClues[y][x].filter(c => c.directionAt(y, x) === dir);
 	if (!cands.length)
-		cands = cellClues[i][j];
+		cands = cellClues[y][x];
 	console.assert(cands.length > 0);
 	// If still multiple candidates, take the shortest one
 	let ret = cands[0];
@@ -92,20 +92,20 @@ function getClueForCellDirection(i, j, dir) {
 	return ret;
 }
 
-function getClueForCell(i, j) {
-	if (!currentCell || cellClues[i][j].length === 1) return cellClues[i][j][0];
-	if (currentCell.y === i && currentCell.x === j) {
+function getClueForCell(y, x) {
+	if (!currentCell || cellClues[y][x].length === 1) return cellClues[y][x][0];
+	if (currentCell.y === y && currentCell.x === x) {
 		// Click on same square: change direction
-		return toggleClueForCell(i, j);
+		return toggleClueForCell(y, x);
 	}
 	let curClue = currentCell.clue;
-	if (curClue.hasCell(i, j)) {
+	if (curClue.hasCell(y, x)) {
 		// Click on same clue: preserve direction
 		return curClue;
 	}
 	// Try to preserve direction
 	let dir = curClue.directionAt(currentCell.y, currentCell.x);
-	return getClueForCellDirection(i, j, dir);
+	return getClueForCellDirection(y, x, dir);
 }
 
 function unselect() {
@@ -118,11 +118,11 @@ function unselect() {
 	highlightedCells = [];
 }
 
-function selectCell(i, j, clue) {
+function selectCell(y, x, clue) {
 	unselect();
-	currentCell = {y: i, x: j, clue};
+	currentCell = {y, x, clue};
 	highlightedCells = clue.cells;
-	tableCells[i][j].classList.add("selected");
+	tableCells[y][x].classList.add("selected");
 	for (let cell of highlightedCells) {
 		let td = tableCells[cell.y][cell.x];
 		td.classList.add("highlighted");
