@@ -4,6 +4,10 @@ html {
 body {
 	font-size: auto;
 }
+#errors {
+	color: red;
+	font-size: 1.5rem;
+}
 table {
 	border-collapse: collapse;
 	border: 2px solid black;

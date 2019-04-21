@@ -7,7 +7,7 @@ horClues = horClues.trim().split('\n');
 var vertText = "Lodrätt";
 var horText = "Vågrätt";
 
-var VERT = 1, HOR = 2;
+var VERT = 1, HOR = 2, REVERSE = 4;
 
 class Clue {
 	constructor(line) {
@@ -31,8 +31,15 @@ for (var i = 0; i < height; i++) {
 	console.assert(special[i].length == width);
 }
 
+var errorCont = document.getElementById("errors");
+function addError(msg) {
+	var div = document.createElement("div");
+	div.textContent = msg;
+	errorCont.appendChild(div);
+}
+
 function clueDirs(i, j) {
-	if (special[i][j] == 'D') return VERT;
+	if (special[i][j] == 'D') return VERT | REVERSE;
 	if (special[i][j] == '#') return 0;
 	if (special[i][j] == 'A' || special[i][j] == 'B') return 0;
 	var res = 0;
@@ -45,11 +52,43 @@ var clueCtrs = {
 	vert: 0,
 	hor: 0,
 };
-function addClue(cat, index) {
-	var ct = clueCtrs[cat]++;
-	if (ct < clues[cat].length) {
-		clues[cat][ct].index = index;
+function addClue(cat, index, cells) {
+	var word = "";
+	for (let cell of cells) {
+		word += grid[cell.y][cell.x];
 	}
+	word = word.toLowerCase();
+	var ct = clueCtrs[cat];
+	if (ct == clues[cat].length || !clues[cat].some(c => c.secret === word)) {
+		addError("Missing clue for " + cat + " word " + word);
+		return;
+	}
+	else if (clues[cat][ct].secret !== word) {
+		addError("Wrongly ordered clue " + word + ", expected it to come before " + clues[cat][ct].secret);
+		throw "stop";
+	}
+
+	clues[cat][ct].index = index;
+	clues[cat][ct].cells = cells;
+	clueCtrs[cat]++;
+}
+
+function followClue(i, j, dir) {
+	var ret = [];
+	while (i >= 0 && j >= 0 && i < height && j < width && special[i][j] != '#') {
+		var sp = special[i][j];
+		if (sp == 'C' && (dir == HOR)) break;
+		ret.push({y: i, x: j});
+		if (sp == 'A') dir = VERT;
+		if (sp == 'B') dir = HOR;
+		if (sp == 'C' && dir == (VERT | REVERSE)) dir = HOR;
+		if (dir == HOR) j++;
+		else if (dir == (HOR | REVERSE)) j--;
+		else if (dir == VERT) i++;
+		else if (dir == (VERT | REVERSE)) i--;
+		else throw new Error("invalid direction " + dir);
+	}
+	return ret;
 }
 
 function descSq(i, j) {
@@ -60,7 +99,6 @@ function go() {
 	var clueNum = 0;
 	var tbody = document.querySelector("tbody");
 	var clueCont = document.getElementById("clues");
-	var errorCont = document.getElementById("errors");
 	for (var i = 0; i < height; i++) {
 		var tr = document.createElement("tr");
 		for (var j = 0; j < width; j++) {
@@ -78,8 +116,8 @@ function go() {
 			var dirs = clueDirs(i, j);
 			if (dirs != 0) {
 				clueNum++;
-				if (dirs & VERT) addClue('vert', clueNum);
-				if (dirs & HOR) addClue('hor', clueNum);
+				if (dirs & VERT) addClue('vert', clueNum, followClue(i, j, dirs & ~HOR));
+				if (dirs & HOR) addClue('hor', clueNum, followClue(i, j, dirs & ~VERT));
 				td.classList.add("clue");
 				td.dataset.cluenum = clueNum;
 			}
@@ -119,24 +157,15 @@ function go() {
 	genClues('hor', horText);
 	genClues('vert', vertText);
 
-	function addError(msg) {
-		var div = document.createElement("div");
-		div.textContent = msg;
-		errorCont.appendChild(div);
-	}
-
-	if (clueCtrs.vert < clues.vert.length) {
-		addError("Fewer vertical words than clues!");
-	}
-	if (clueCtrs.vert > clues.vert.length) {
-		addError("More vertical words than clues!");
-	}
-	if (clueCtrs.hor < clues.hor.length) {
-		addError("Fewer horizontal words than clues!");
-	}
-	if (clueCtrs.hor > clues.hor.length) {
-		addError("More horizontal words than clues!");
+	for (let cat of ['hor', 'vert']) {
+		if (clueCtrs[cat] < clues[cat].length) {
+			addError("Unused clue for word " + clues[cat][clueCtrs[cat]].secret);
+		}
 	}
 }
 
-go();
+try {
+	go();
+} catch(e) {
+	if (e !== "stop") throw e;
+}
