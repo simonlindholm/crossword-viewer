@@ -56,83 +56,87 @@ function descSq(i, j) {
 	return "Row " + (i+1) + " col " + (j+1);
 }
 
-var clueNum = 0;
-var tbody = document.querySelector("tbody");
-var clueCont = document.getElementById("clues");
-var errorCont = document.getElementById("errors");
-for (var i = 0; i < height; i++) {
-	var tr = document.createElement("tr");
-	for (var j = 0; j < width; j++) {
-		var td = document.createElement("td");
-		if (special[i][j] == '#')
-			td.classList.add("blocked");
-		else if (special[i][j] != '.')
-			td.classList.add("special-" + special[i][j]);
-		if (special[i][j] == '#' && grid[i][j] != ' ') {
-			addError(descSq(i, j) + " is marked as blocked, but contains a letter " + grid[i][j]);
+function go() {
+	var clueNum = 0;
+	var tbody = document.querySelector("tbody");
+	var clueCont = document.getElementById("clues");
+	var errorCont = document.getElementById("errors");
+	for (var i = 0; i < height; i++) {
+		var tr = document.createElement("tr");
+		for (var j = 0; j < width; j++) {
+			var td = document.createElement("td");
+			if (special[i][j] == '#')
+				td.classList.add("blocked");
+			else if (special[i][j] != '.')
+				td.classList.add("special-" + special[i][j]);
+			if (special[i][j] == '#' && grid[i][j] != ' ') {
+				addError(descSq(i, j) + " is marked as blocked, but contains a letter " + grid[i][j]);
+			}
+			if (special[i][j] != '#' && grid[i][j] == ' ') {
+				addError(descSq(i, j) + " is not marked as blocked, but does not contain any letter");
+			}
+			var dirs = clueDirs(i, j);
+			if (dirs != 0) {
+				clueNum++;
+				if (dirs & VERT) addClue('vert', clueNum);
+				if (dirs & HOR) addClue('hor', clueNum);
+				td.classList.add("clue");
+				td.dataset.cluenum = clueNum;
+			}
+			if (showLetters && special[i][j] != '#') {
+				var letterCont = document.createElement("div");
+				letterCont.classList.add("letter-container");
+				var letter = document.createElement("span");
+				letter.classList.add("letter");
+				letter.textContent = grid[i][j];
+				letterCont.appendChild(letter);
+				td.appendChild(letterCont);
+			}
+			tr.appendChild(td);
 		}
-		if (special[i][j] != '#' && grid[i][j] == ' ') {
-			addError(descSq(i, j) + " is not marked as blocked, but does not contain any letter");
-		}
-		var dirs = clueDirs(i, j);
-		if (dirs != 0) {
-			clueNum++;
-			if (dirs & VERT) addClue('vert', clueNum);
-			if (dirs & HOR) addClue('hor', clueNum);
-			td.classList.add("clue");
-			td.dataset.cluenum = clueNum;
-		}
-		if (showLetters && special[i][j] != '#') {
-			var letterCont = document.createElement("div");
-			letterCont.classList.add("letter-container");
-			var letter = document.createElement("span");
-			letter.classList.add("letter");
-			letter.textContent = grid[i][j];
-			letterCont.appendChild(letter);
-			td.appendChild(letterCont);
-		}
-		tr.appendChild(td);
+		tbody.appendChild(tr);
 	}
-	tbody.appendChild(tr);
-}
 
-function genClues(cat, headerText) {
-	let cont = document.createElement("div");
-	cont.classList.add("clues-dir");
-	let header = document.createElement("h2");
-	header.textContent = headerText;
-	cont.appendChild(header);
-	for (let clue of clues[cat]) {
-		let row = document.createElement("div");
-		let index = document.createElement("span");
-		index.classList.add("index");
-		index.textContent = clue.index + ". ";
-		row.appendChild(index);
-		let cl = document.createElement("span");
-		cl.textContent = clue.clue;
-		row.appendChild(cl);
-		cont.appendChild(row);
+	function genClues(cat, headerText) {
+		let cont = document.createElement("div");
+		cont.classList.add("clues-dir");
+		let header = document.createElement("h2");
+		header.textContent = headerText;
+		cont.appendChild(header);
+		for (let clue of clues[cat]) {
+			let row = document.createElement("div");
+			let index = document.createElement("span");
+			index.classList.add("index");
+			index.textContent = clue.index + ". ";
+			row.appendChild(index);
+			let cl = document.createElement("span");
+			cl.textContent = clue.clue;
+			row.appendChild(cl);
+			cont.appendChild(row);
+		}
+		clueCont.appendChild(cont);
 	}
-	clueCont.appendChild(cont);
-}
-genClues('hor', horText);
-genClues('vert', vertText);
+	genClues('hor', horText);
+	genClues('vert', vertText);
 
-function addError(msg) {
-	var div = document.createElement("div");
-	div.textContent = msg;
-	errorCont.appendChild(div);
+	function addError(msg) {
+		var div = document.createElement("div");
+		div.textContent = msg;
+		errorCont.appendChild(div);
+	}
+
+	if (clueCtrs.vert < clues.vert.length) {
+		addError("Fewer vertical words than clues!");
+	}
+	if (clueCtrs.vert > clues.vert.length) {
+		addError("More vertical words than clues!");
+	}
+	if (clueCtrs.hor < clues.hor.length) {
+		addError("Fewer horizontal words than clues!");
+	}
+	if (clueCtrs.hor > clues.hor.length) {
+		addError("More horizontal words than clues!");
+	}
 }
 
-if (clueCtrs.vert < clues.vert.length) {
-	addError("Fewer vertical words than clues!");
-}
-if (clueCtrs.vert > clues.vert.length) {
-	addError("More vertical words than clues!");
-}
-if (clueCtrs.hor < clues.hor.length) {
-	addError("Fewer horizontal words than clues!");
-}
-if (clueCtrs.hor > clues.hor.length) {
-	addError("More horizontal words than clues!");
-}
+go();
