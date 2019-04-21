@@ -6,11 +6,13 @@ var horClues = null;
 
 var showLetters = false;
 
+var $ = swedish;
+
 var errElm = document.getElementById("errors");
 var qs = location.search.match(/^\??(.*)/)[1], q = qs.split('&');
+document.title = $.title;
 if (!qs.length) {
-	// "Please add ?1, ?2, ... to the URL to load a specific crossword."
-	errElm.textContent = "Lägg till ?1, ?2, ... till URLen för att ladda ett specifikt korsord.";
+	errElm.textContent = $.noIdSpecified;
 } else {
 	var num = q[0];
 	document.title += ' #' + num;
@@ -23,8 +25,7 @@ if (!qs.length) {
 		document.body.appendChild(scr);
 	};
 	scr.onerror = function() {
-		// "No such crossword."
-		errElm.textContent = "Korsordet finns inte.";
+		errElm.textContent = $.noSuchCrossword;
 	};
 	document.body.appendChild(scr);
 }

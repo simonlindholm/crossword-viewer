@@ -12,9 +12,6 @@ horClues = horClues.trim().split('\n');
 var cellClues = [];
 var tableCells = [];
 
-var vertText = "Lodrätt";
-var horText = "Vågrätt";
-
 var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ0123456789-_/\"'?!@$%^&*()=+`[]{}.,:;<>|\\";
 
 var VERT = 1, HOR = 2, REVERSE = 4;
@@ -379,8 +376,8 @@ function init() {
 		}
 		clueCont.appendChild(cont);
 	}
-	genClues('hor', horText);
-	genClues('vert', vertText);
+	genClues('hor', $.hor);
+	genClues('vert', $.vert);
 
 	for (let cat of ['hor', 'vert']) {
 		if (clueCtrs[cat] < clues[cat].length) {
