@@ -15,6 +15,8 @@ var tableCells = [];
 var vertText = "Lodrätt";
 var horText = "Vågrätt";
 
+var alphabet = "abcdefghijklmnopqrstuvwxyzåäö0123456789-_/\"'?!@$%^&*()=+`[]{}.,:;<>|\\";
+
 var VERT = 1, HOR = 2, REVERSE = 4;
 
 class Clue {
@@ -169,8 +171,26 @@ function clearOrMoveBack() {
 	}
 }
 
+function setValueAndAdvance(val) {
+	setCellValue(currentCell.y, currentCell.x, val);
+	let ind = currentCell.clue.findCellIndex(currentCell.y, currentCell.x);
+	if (ind !== currentCell.clue.cells.length - 1) {
+		let cell = currentCell.clue.cells[ind + 1];
+		selectCell(cell.y, cell.x, currentCell.clue);
+	}
+}
+
 function handleKeyDown(event) {
-	switch (event.key) {
+	let key = event.key;
+	if (!key) return;
+	if (key.length === 1 && currentCell && alphabet.indexOf(key.toLowerCase()) !== -1) {
+		setValueAndAdvance(key.toLowerCase());
+		event.preventDefault();
+		event.stopPropagation();
+		return;
+	}
+
+	switch (key) {
 	case "Escape":
 	case "Esc":
 		unselect();
