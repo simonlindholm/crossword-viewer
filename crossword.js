@@ -1,5 +1,10 @@
 
-grid = grid.split('\n').filter(x => x);
+var haveGrid = true;
+if (grid !== null) {
+	grid = grid.split('\n').filter(x => x);
+} else {
+	haveGrid = false;
+}
 special = special.trim().split('\n');
 vertClues = vertClues.trim().split('\n');
 horClues = horClues.trim().split('\n');
@@ -24,10 +29,10 @@ var clues = {
 	hor: horClues.map(line => new Clue(line)),
 };
 
-var height = grid.length, width = grid[0].length;
-console.assert(special.length == height);
+var height = special.length, width = special[0].length;
+if (haveGrid) console.assert(grid.length == height);
 for (var i = 0; i < height; i++) {
-	console.assert(grid[i].length == width);
+	if (haveGrid) console.assert(grid[i].length == width);
 	console.assert(special[i].length == width);
 }
 
@@ -53,19 +58,21 @@ var clueCtrs = {
 	hor: 0,
 };
 function addClue(cat, index, cells) {
-	var word = "";
-	for (let cell of cells) {
-		word += grid[cell.y][cell.x];
-	}
-	word = word.toLowerCase();
 	var ct = clueCtrs[cat];
-	if (ct == clues[cat].length || !clues[cat].some(c => c.secret === word)) {
-		addError("Missing clue for " + cat + " word " + word);
-		return;
-	}
-	else if (clues[cat][ct].secret !== word) {
-		addError("Wrongly ordered clue " + word + ", expected it to come before " + clues[cat][ct].secret);
-		throw "stop";
+	if (haveGrid) {
+		var word = "";
+		for (let cell of cells) {
+			word += grid[cell.y][cell.x];
+		}
+		word = word.toLowerCase();
+		if (ct == clues[cat].length || !clues[cat].some(c => c.secret === word)) {
+			addError("Missing clue for " + cat + " word " + word);
+			return;
+		}
+		else if (clues[cat][ct].secret !== word) {
+			addError("Wrongly ordered clue " + word + ", expected it to come before " + clues[cat][ct].secret);
+			throw "stop";
+		}
 	}
 
 	clues[cat][ct].index = index;
@@ -107,11 +114,13 @@ function go() {
 				td.classList.add("blocked");
 			else if (special[i][j] != '.')
 				td.classList.add("special-" + special[i][j]);
-			if (special[i][j] == '#' && grid[i][j] != ' ') {
-				addError(descSq(i, j) + " is marked as blocked, but contains a letter " + grid[i][j]);
-			}
-			if (special[i][j] != '#' && grid[i][j] == ' ') {
-				addError(descSq(i, j) + " is not marked as blocked, but does not contain any letter");
+			if (haveGrid) {
+				if (special[i][j] == '#' && grid[i][j] != ' ') {
+					addError(descSq(i, j) + " is marked as blocked, but contains a letter " + grid[i][j]);
+				}
+				if (special[i][j] != '#' && grid[i][j] == ' ') {
+					addError(descSq(i, j) + " is not marked as blocked, but does not contain any letter");
+				}
 			}
 			var dirs = clueDirs(i, j);
 			if (dirs != 0) {
@@ -126,9 +135,10 @@ function go() {
 			if (special[i][j] != '#') {
 				var letter = document.createElement("span");
 				letter.classList.add("letter");
-				if (showLetters)
+				if (haveGrid && showLetters)
 					letter.classList.add("show");
-				letter.textContent = grid[i][j];
+				if (haveGrid)
+					letter.textContent = grid[i][j];
 				letterCont.appendChild(letter);
 			}
 			td.appendChild(letterCont);
