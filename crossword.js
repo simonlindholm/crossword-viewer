@@ -1,5 +1,5 @@
 
-grid = grid.trim().split('\n');
+grid = grid.split('\n').filter(x => x);
 special = special.trim().split('\n');
 vertClues = vertClues.trim().split('\n');
 horClues = horClues.trim().split('\n');
