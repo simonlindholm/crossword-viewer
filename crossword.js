@@ -142,6 +142,33 @@ function cursorMove(dy, dx) {
 	}
 }
 
+function getCellValue(y, x) {
+	let td = tableCells[y][x];
+	let span = td.querySelector(".letter");
+	return span.textContent;
+}
+
+function setCellValue(y, x, val) {
+	let td = tableCells[y][x];
+	let span = td.querySelector(".letter");
+	span.textContent = val;
+}
+
+function clearOrMoveBack() {
+	if (!currentCell)
+		return;
+	let curVal = getCellValue(currentCell.y, currentCell.x);
+	if (curVal) {
+		setCellValue(currentCell.y, currentCell.x, '');
+	} else {
+		let ind = currentCell.clue.findCellIndex(currentCell.y, currentCell.x);
+		if (ind !== 0) {
+			let cell = currentCell.clue.cells[ind - 1];
+			selectCell(cell.y, cell.x, currentCell.clue);
+		}
+	}
+}
+
 function handleKeyDown(event) {
 	switch (event.key) {
 	case "Escape":
@@ -169,9 +196,24 @@ function handleKeyDown(event) {
 		cursorMove(0, 1);
 		break;
 
+	case " ":
+	case "Enter":
+		if (currentCell) {
+			let clue = toggleClueForCell(currentCell.y, currentCell.x);
+			selectCell(currentCell.y, currentCell.x, clue);
+		}
+		break;
+
+	case "Backspace":
+		// Don't lose data even on errors
+		event.preventDefault();
+		clearOrMoveBack();
+		break;
+
 	default:
 		return;
 	}
+
 	event.preventDefault();
 	event.stopPropagation();
 }
@@ -288,8 +330,6 @@ function init() {
 				var letter = document.createElement("span");
 				letter.classList.add("letter");
 				if (haveGrid && showLetters)
-					letter.classList.add("show");
-				if (haveGrid)
 					letter.textContent = grid[i][j];
 				letterCont.appendChild(letter);
 			}
