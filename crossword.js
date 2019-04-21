@@ -36,6 +36,10 @@ class Clue {
 		return -1;
 	}
 
+	hasCell(y, x) {
+		return this.findCellIndex(y, x) !== -1;
+	}
+
 	directionAt(y, x) {
 		let ind = this.findCellIndex(y, x);
 		console.assert(this.cells.length >= 2);
@@ -53,6 +57,13 @@ var clues = {
 
 var height = special.length, width = special[0].length;
 
+function oob(y, x) {
+	return y < 0 || x < 0 || y >= height || x >= width;
+}
+function openSquare(y, x) {
+	return !oob(y, x) && special[y][x] != '#';
+}
+
 function descSq(i, j) {
 	return "Row " + (i+1) + " col " + (j+1);
 }
@@ -67,22 +78,11 @@ function toggleClueForCell(i, j) {
 	return cands[(ind + 1) % cands.length];
 }
 
-function getClueForCell(i, j) {
-	if (!currentCell || cellClues[i][j].length === 1) return cellClues[i][j][0];
-	if (currentCell.y === i && currentCell.x === j) {
-		// Click on same square: change direction
-		return toggleClueForCell(i, j);
-	}
-	let curClue = currentCell.clue;
-	if (curClue.findCellIndex(i, j) !== -1) {
-		// Click on same clue: preserve direction
-		return curClue;
-	}
-	// Try to preserve direction
-	let dir = curClue.directionAt(currentCell.y, currentCell.x);
+function getClueForCellDirection(i, j, dir) {
 	let cands = cellClues[i][j].filter(c => c.directionAt(i, j) === dir);
 	if (!cands.length)
 		cands = cellClues[i][j];
+	console.assert(cands.length > 0);
 	// If still multiple candidates, take the shortest one
 	let ret = cands[0];
 	for (let i = 1; i < cands.length; i++) {
@@ -92,19 +92,88 @@ function getClueForCell(i, j) {
 	return ret;
 }
 
-function selectCell(i, j, clue) {
-	currentCell = {y: i, x: j, clue};
+function getClueForCell(i, j) {
+	if (!currentCell || cellClues[i][j].length === 1) return cellClues[i][j][0];
+	if (currentCell.y === i && currentCell.x === j) {
+		// Click on same square: change direction
+		return toggleClueForCell(i, j);
+	}
+	let curClue = currentCell.clue;
+	if (curClue.hasCell(i, j)) {
+		// Click on same clue: preserve direction
+		return curClue;
+	}
+	// Try to preserve direction
+	let dir = curClue.directionAt(currentCell.y, currentCell.x);
+	return getClueForCellDirection(i, j, dir);
+}
+
+function unselect() {
 	for (let cell of highlightedCells) {
 		let td = tableCells[cell.y][cell.x];
 		td.classList.remove("highlighted");
 		td.classList.remove("selected");
 	}
+	currentCell = null;
+	highlightedCells = [];
+}
+
+function selectCell(i, j, clue) {
+	unselect();
+	currentCell = {y: i, x: j, clue};
 	highlightedCells = clue.cells;
 	tableCells[i][j].classList.add("selected");
 	for (let cell of highlightedCells) {
 		let td = tableCells[cell.y][cell.x];
 		td.classList.add("highlighted");
 	}
+}
+
+function cursorMove(dy, dx) {
+	let ny = currentCell.y + dy;
+	let nx = currentCell.x + dx;
+	if (!currentCell || !openSquare(ny, nx))
+		return;
+	if (currentCell.clue.hasCell(ny, nx)) {
+		selectCell(ny, nx, currentCell.clue);
+	} else {
+		let clue = getClueForCellDirection(ny, nx, (dy === 0));
+		selectCell(ny, nx, clue);
+	}
+}
+
+function handleKeyDown(event) {
+	switch (event.key) {
+	case "Escape":
+	case "Esc":
+		unselect();
+		break;
+
+	case "Down":
+	case "ArrowDown":
+		cursorMove(1, 0);
+		break;
+
+	case "Up":
+	case "ArrowUp":
+		cursorMove(-1, 0);
+		break;
+
+	case "Left":
+	case "ArrowLeft":
+		cursorMove(0, -1);
+		break;
+
+	case "Right":
+	case "ArrowRight":
+		cursorMove(0, 1);
+		break;
+
+	default:
+		return;
+	}
+	event.preventDefault();
+	event.stopPropagation();
 }
 
 function init() {
@@ -159,7 +228,7 @@ function init() {
 
 	function followClue(i, j, dir) {
 		var ret = [];
-		while (i >= 0 && j >= 0 && i < height && j < width && special[i][j] != '#') {
+		while (openSquare(i, j)) {
 			var sp = special[i][j];
 			if (sp == 'C' && (dir == HOR)) break;
 			ret.push({y: i, x: j});
@@ -276,6 +345,8 @@ function init() {
 			};
 		}
 	}
+
+	document.addEventListener("keydown", handleKeyDown);
 }
 
 try {
