@@ -33,11 +33,11 @@ for (var i = 0; i < height; i++) {
 
 function clueDirs(i, j) {
 	if (special[i][j] == 'D') return VERT;
-	if (grid[i][j] == '#') return 0;
+	if (special[i][j] == '#') return 0;
 	if (special[i][j] == 'A' || special[i][j] == 'B') return 0;
 	var res = 0;
-	if (i+1 < height && grid[i+1][j] != '#' && (i == 0 || grid[i-1][j] == '#')) res |= VERT;
-	if (j+1 < width && grid[i][j+1] != '#' && (j == 0 || grid[i][j-1] == '#')) res |= HOR;
+	if (i+1 < height && special[i+1][j] != '#' && (i == 0 || special[i-1][j] == '#')) res |= VERT;
+	if (j+1 < width && special[i][j+1] != '#' && (j == 0 || special[i][j-1] == '#')) res |= HOR;
 	return res;
 }
 
@@ -52,6 +52,10 @@ function addClue(cat, index) {
 	}
 }
 
+function descSq(i, j) {
+	return "Row " + (i+1) + " col " + (j+1);
+}
+
 var clueNum = 0;
 var tbody = document.querySelector("tbody");
 var clueCont = document.getElementById("clues");
@@ -60,19 +64,25 @@ for (var i = 0; i < height; i++) {
 	var tr = document.createElement("tr");
 	for (var j = 0; j < width; j++) {
 		var td = document.createElement("td");
-		if (grid[i][j] == '#')
+		if (special[i][j] == '#')
 			td.classList.add("blocked");
-		if (special[i][j] != '.')
+		else if (special[i][j] != '.')
 			td.classList.add("special-" + special[i][j]);
-		var clue = clueDirs(i, j);
-		if (clue != 0) {
+		if (special[i][j] == '#' && grid[i][j] != ' ') {
+			addError(descSq(i, j) + " is marked as blocked, but contains a letter " + grid[i][j]);
+		}
+		if (special[i][j] != '#' && grid[i][j] == ' ') {
+			addError(descSq(i, j) + " is not marked as blocked, but does not contain any letter");
+		}
+		var dirs = clueDirs(i, j);
+		if (dirs != 0) {
 			clueNum++;
-			if (clue & VERT) addClue('vert', clueNum);
-			if (clue & HOR) addClue('hor', clueNum);
+			if (dirs & VERT) addClue('vert', clueNum);
+			if (dirs & HOR) addClue('hor', clueNum);
 			td.classList.add("clue");
 			td.dataset.cluenum = clueNum;
 		}
-		if (showLetters && grid[i][j] != '#') {
+		if (showLetters && special[i][j] != '#') {
 			var letterCont = document.createElement("div");
 			letterCont.classList.add("letter-container");
 			var letter = document.createElement("span");

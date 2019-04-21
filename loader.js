@@ -1,3 +1,9 @@
+// Crossword data, set by later .js file
+var grid = null;
+var special = null;
+var vertClues = null;
+var horClues = null;
+
 var showLetters = false;
 
 var errElm = document.getElementById("errors");
