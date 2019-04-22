@@ -11,6 +11,8 @@ horClues = horClues.trim().split('\n');
 
 var cellClues = [];
 var tableCells = [];
+var enteredGrid = [];
+var idb = null;
 
 var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ0123456789-_/\"'?!@$%^&*()=+`[]{}.,:;<>|\\";
 
@@ -142,15 +144,14 @@ function cursorMove(dy, dx) {
 }
 
 function getCellValue(y, x) {
-	let td = tableCells[y][x];
-	let span = td.querySelector(".letter");
-	return span.textContent;
+	return enteredGrid[y][x];
 }
 
 function setCellValue(y, x, val) {
 	let td = tableCells[y][x];
 	let span = td.querySelector(".letter");
 	span.textContent = val;
+	enteredGrid[y][x] = val;
 }
 
 function clearOrMoveBack() {
@@ -159,6 +160,7 @@ function clearOrMoveBack() {
 	let curVal = getCellValue(currentCell.y, currentCell.x);
 	if (curVal) {
 		setCellValue(currentCell.y, currentCell.x, '');
+		saveGrid();
 	} else {
 		let ind = currentCell.clue.findCellIndex(currentCell.y, currentCell.x);
 		if (ind !== 0) {
@@ -170,6 +172,7 @@ function clearOrMoveBack() {
 
 function setValueAndAdvance(val) {
 	setCellValue(currentCell.y, currentCell.x, val);
+	saveGrid();
 	let ind = currentCell.clue.findCellIndex(currentCell.y, currentCell.x);
 	if (ind !== currentCell.clue.cells.length - 1) {
 		let cell = currentCell.clue.cells[ind + 1];
@@ -185,6 +188,7 @@ function clearGrid() {
 				setCellValue(y, x, '');
 		}
 	}
+	saveGrid();
 }
 
 function handleKeyDown(event) {
@@ -243,6 +247,50 @@ function handleKeyDown(event) {
 
 	event.preventDefault();
 	event.stopPropagation();
+}
+
+function restoreSavedState() {
+	try {
+		let req = indexedDB.open("crossword", 2);
+		req.onupgradeneeded = function(event) {
+			let db = event.target.result;
+			db.createObjectStore("savedletters", { keyPath: "id" });
+		};
+		req.onsuccess = function(event) {
+			let db = event.target.result;
+			idb = db;
+			let req = db.transaction(["savedletters"], "readonly")
+				.objectStore("savedletters")
+				.get(crosswordId);
+			req.onsuccess = function(event) {
+				let result = event.target.result;
+				if (!result) {
+					console.log("no saved grid");
+					return;
+				}
+				let grid = result.grid;
+				if (!grid || grid.length !== height || grid[0].length !== width) {
+					console.log("invalid saved grid, ignoring");
+					return;
+				}
+				for (let y = 0; y < height; y++) {
+					for (let x = 0; x < width; x++) {
+						if (openSquare(y, x))
+							setCellValue(y, x, grid[y][x]);
+					}
+				}
+			};
+		};
+	} catch(e) {
+		console.log("unable to use indexedDB", e);
+	}
+}
+
+function saveGrid() {
+	if (!idb) return;
+	idb.transaction(["savedletters"], "readwrite")
+		.objectStore("savedletters")
+		.put({"id": crosswordId, grid: enteredGrid});
 }
 
 function init() {
@@ -322,8 +370,11 @@ function init() {
 		if (haveGrid) console.assert(grid[i].length == width);
 		console.assert(special[i].length == width);
 		cellClues.push([]);
-		for (var j = 0; j < width; j++)
+		enteredGrid.push([]);
+		for (var j = 0; j < width; j++) {
 			cellClues[i].push([]);
+			enteredGrid[i].push('');
+		}
 	}
 
 	var clueNum = 0;
@@ -358,8 +409,10 @@ function init() {
 			if (special[i][j] != '#') {
 				var letter = document.createElement("span");
 				letter.classList.add("letter");
-				if (haveGrid && showLetters)
+				if (haveGrid && showLetters) {
 					letter.textContent = grid[i][j];
+					enteredGrid[i][j] = grid[i][j];
+				}
 				letterCont.appendChild(letter);
 			}
 			td.appendChild(letterCont);
@@ -427,6 +480,8 @@ function init() {
 	addButton($.clear, [], clearGrid);
 
 	document.addEventListener("keydown", handleKeyDown);
+
+	restoreSavedState();
 }
 
 try {
