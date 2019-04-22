@@ -221,6 +221,15 @@ function revealAll() {
 	saveGrid();
 }
 
+function nextClue(dir) {
+	let clue = currentCell.clue;
+	let allClues = [].concat(clues.vert, clues.hor);
+	let ind = allClues.indexOf(clue);
+	console.assert(ind !== -1);
+	clue = allClues[(ind + dir + allClues.length) % allClues.length];
+	selectCell(clue.cells[0].y, clue.cells[0].x, clue);
+}
+
 function handleKeyDown(event) {
 	if (event.altKey || event.ctrlKey || event.metaKey || !event.key) return;
 	let key = event.key;
@@ -268,6 +277,11 @@ function handleKeyDown(event) {
 		// Don't lose data even on errors
 		event.preventDefault();
 		clearOrMoveBack();
+		break;
+
+	case "Tab":
+		if (!currentCell) return;
+		nextClue(event.shiftKey ? -1 : 1);
 		break;
 
 	default:
