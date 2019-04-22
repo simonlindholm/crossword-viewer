@@ -70,7 +70,6 @@ function descSq(i, j) {
 }
 
 var currentCell = null;
-var highlightedCells = [];
 
 function toggleClueForCell(y, x) {
 	let cands = cellClues[y][x];
@@ -110,22 +109,23 @@ function getClueForCell(y, x) {
 }
 
 function unselect() {
+	if (!currentCell) return;
 	document.body.classList.remove("have-selection");
-	for (let cell of highlightedCells) {
+	for (let cell of currentCell.clue.cells) {
 		let td = tableCells[cell.y][cell.x];
 		td.classList.remove("highlighted");
 		td.classList.remove("selected");
 	}
+	currentCell.clue.elem.classList.remove("selected");
 	currentCell = null;
-	highlightedCells = [];
 }
 
 function selectCell(y, x, clue) {
 	unselect();
 	currentCell = {y, x, clue};
-	highlightedCells = clue.cells;
 	tableCells[y][x].classList.add("selected");
-	for (let cell of highlightedCells) {
+	clue.elem.classList.add("selected");
+	for (let cell of clue.cells) {
 		let td = tableCells[cell.y][cell.x];
 		td.classList.add("highlighted");
 	}
@@ -464,9 +464,9 @@ function init() {
 			row.appendChild(index);
 			let cl = document.createElement("span");
 			cl.textContent = clue.clue;
-			clue.elem = cl;
 			row.appendChild(cl);
 			cont.appendChild(row);
+			clue.elem = row;
 		}
 		clueCont.appendChild(cont);
 	}

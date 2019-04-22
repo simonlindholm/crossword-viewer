@@ -108,6 +108,10 @@ td.highlighted {
 td.selected {
 	background-color: #e0e040;
 }
+div.selected {
+	background-color: #ffff80;
+	font-weight: bold;
+}
 }
 
 @media print {
