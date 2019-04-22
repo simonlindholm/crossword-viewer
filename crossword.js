@@ -431,7 +431,7 @@ function init() {
 				clueNum++;
 				if (dirs & VERT) addClue('vert', clueNum, followClue(i, j, dirs & ~HOR));
 				if (dirs & HOR) addClue('hor', clueNum, followClue(i, j, dirs & ~VERT));
-				td.classList.add("clue");
+				td.classList.add('has-clue');
 				td.dataset.cluenum = clueNum;
 			}
 			var letterCont = document.createElement("div");
@@ -459,11 +459,13 @@ function init() {
 		cont.appendChild(header);
 		for (let clue of clues[cat]) {
 			let row = document.createElement("div");
+			row.classList.add('clue');
 			let index = document.createElement("span");
 			index.classList.add("index");
 			index.textContent = clue.index + ". ";
 			row.appendChild(index);
 			let cl = document.createElement("span");
+			cl.classList.add('clue-text');
 			cl.textContent = clue.clue;
 			row.appendChild(cl);
 			cont.appendChild(row);

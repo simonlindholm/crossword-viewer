@@ -28,7 +28,7 @@ td {
 td.blocked {
 	background-color: black;
 }
-td.clue:before {
+td.has-clue:before {
 	content: attr(data-cluenum);
 	position: absolute;
 	margin-left: 2px;
@@ -100,6 +100,13 @@ h2 {
 .index {
 	font-weight: bold;
 }
+.clue::after {
+	/* Maintain line height for two-line clues that get selected and bolded,
+	 * by giving them an invisible bolded part at the end. */
+	content: ' ';
+	font-weight: bold;
+	visibility: hidden;
+}
 
 @media screen {
 td.highlighted {
@@ -110,6 +117,8 @@ td.selected {
 }
 div.selected {
 	background-color: #ffff80;
+}
+div.selected > .clue-text {
 	font-weight: bold;
 }
 }
