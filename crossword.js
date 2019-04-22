@@ -110,6 +110,7 @@ function getClueForCell(y, x) {
 }
 
 function unselect() {
+	document.body.classList.remove("have-selection");
 	for (let cell of highlightedCells) {
 		let td = tableCells[cell.y][cell.x];
 		td.classList.remove("highlighted");
@@ -128,6 +129,7 @@ function selectCell(y, x, clue) {
 		let td = tableCells[cell.y][cell.x];
 		td.classList.add("highlighted");
 	}
+	document.body.classList.add("have-selection");
 }
 
 function cursorMove(dy, dx) {
@@ -186,6 +188,34 @@ function clearGrid() {
 		for (let x = 0; x < width; x++) {
 			if (openSquare(y, x))
 				setCellValue(y, x, '');
+		}
+	}
+	saveGrid();
+}
+
+function revealLetter() {
+	if (!currentCell) return;
+	let {y, x} = currentCell;
+	setCellValue(y, x, grid[y][x]);
+	saveGrid();
+}
+
+function revealWord() {
+	if (!currentCell) return;
+	let clue = currentCell.clue;
+	for (let i = 0; i < clue.cells.length; i++) {
+		let {y, x} = clue.cells[i];
+		setCellValue(y, x, grid[y][x]);
+	}
+	saveGrid();
+}
+
+function revealAll() {
+	// if (!confirm($.areYouSureReveal)) return;
+	for (let y = 0; y < height; y++) {
+		for (let x = 0; x < width; x++) {
+			if (openSquare(y, x))
+				setCellValue(y, x, grid[y][x]);
 		}
 	}
 	saveGrid();
@@ -478,6 +508,11 @@ function init() {
 		btnCont.appendChild(elem);
 	}
 	addButton($.clear, [], clearGrid);
+	if (haveGrid) {
+		addButton($.revealLetter, ['need-selection'], revealLetter);
+		addButton($.revealWord, ['need-selection'], revealWord);
+		addButton($.revealAll, [], revealAll);
+	}
 
 	document.addEventListener("keydown", handleKeyDown);
 

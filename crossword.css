@@ -81,6 +81,13 @@ td.special-C {
 	background-position: top 2px left 19px;
 }
 
+.need-selection {
+	display: none;
+}
+.have-selection .need-selection {
+	display: inline;
+}
+
 .clues-dir {
 	float: left;
 	margin: 0 6px;
@@ -113,6 +120,9 @@ h2 {
 }
 #clues {
 	clear: both;
+}
+#buttons {
+	display: none;
 }
 .clues-dir {
 	float: left;
