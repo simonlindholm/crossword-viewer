@@ -5,6 +5,7 @@ var vertClues = null;
 var horClues = null;
 
 var showLetters = false;
+var crosswordId = '';
 
 var $ = swedish;
 
@@ -14,11 +15,11 @@ document.title = $.title;
 if (!qs.length) {
 	errElm.textContent = $.noIdSpecified;
 } else {
-	var num = q[0];
-	document.title += ' #' + num;
+	crosswordId = q[0];
+	document.title += ' #' + crosswordId;
 	var scr = document.createElement("script");
 	if (q.includes("show=1")) showLetters = true;
-	scr.src = 'data/' + num + '.js';
+	scr.src = 'data/' + crosswordId + '.js';
 	scr.onload = function() {
 		var scr = document.createElement("script");
 		scr.src = 'crossword.js';
