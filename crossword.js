@@ -222,8 +222,8 @@ function revealAll() {
 }
 
 function handleKeyDown(event) {
+	if (event.altKey || event.ctrlKey || event.metaKey || !event.key) return;
 	let key = event.key;
-	if (!key) return;
 	if (key.length === 1 && currentCell && alphabet.indexOf(key.toUpperCase()) !== -1) {
 		setValueAndAdvance(key.toUpperCase());
 		event.preventDefault();
@@ -259,10 +259,9 @@ function handleKeyDown(event) {
 
 	case " ":
 	case "Enter":
-		if (currentCell) {
-			let clue = toggleClueForCell(currentCell.y, currentCell.x);
-			selectCell(currentCell.y, currentCell.x, clue);
-		}
+		if (!currentCell) return;
+		let clue = toggleClueForCell(currentCell.y, currentCell.x);
+		selectCell(currentCell.y, currentCell.x, clue);
 		break;
 
 	case "Backspace":
