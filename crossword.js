@@ -328,10 +328,12 @@ function init() {
 	var clueCont = document.getElementById("clues");
 	var btnCont = document.getElementById("buttons");
 
-	function addError(msg) {
+	function addError(msg, fatal) {
 		var div = document.createElement("div");
 		div.textContent = msg;
 		errorCont.appendChild(div);
+		if (fatal)
+			throw "stop";
 	}
 
 	function clueDirs(i, j) {
@@ -358,12 +360,11 @@ function init() {
 			}
 			word = word.toUpperCase();
 			if (ct == clues[cat].length || !clues[cat].some(c => c.secret === word)) {
-				addError("Missing clue for " + cat + " word " + word);
+				addError("Missing clue for " + cat + " word " + word, false);
 				return;
 			}
 			else if (clues[cat][ct].secret !== word) {
-				addError("Wrongly ordered clue " + word + ", expected it to come before " + clues[cat][ct].secret);
-				throw "stop";
+				addError("Wrongly ordered clue " + word + ", expected it to come before " + clues[cat][ct].secret, true);
 			}
 		}
 
@@ -419,10 +420,10 @@ function init() {
 				td.classList.add("special-" + special[i][j]);
 			if (haveGrid) {
 				if (special[i][j] == '#' && grid[i][j] != ' ') {
-					addError(descSq(i, j) + " is marked as blocked, but contains a letter " + grid[i][j]);
+					addError(descSq(i, j) + " is marked as blocked, but contains a letter " + grid[i][j], false);
 				}
 				if (special[i][j] != '#' && grid[i][j] == ' ') {
-					addError(descSq(i, j) + " is not marked as blocked, but does not contain any letter");
+					addError(descSq(i, j) + " is not marked as blocked, but does not contain any letter", false);
 				}
 			}
 			var dirs = clueDirs(i, j);
@@ -475,7 +476,7 @@ function init() {
 
 	for (let cat of ['hor', 'vert']) {
 		if (clueCtrs[cat] < clues[cat].length) {
-			addError("Unused clue for word " + clues[cat][clueCtrs[cat]].secret);
+			addError("Unused clue for word " + clues[cat][clueCtrs[cat]].secret, true);
 		}
 	}
 
