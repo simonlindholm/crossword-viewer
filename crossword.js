@@ -22,8 +22,8 @@ class Clue {
 	constructor(line) {
 		console.assert(line, "empty clue line");
 		var parts = line.split(" - ");
-		this.secret = parts[0];
-		this.clue = parts.slice(1).join(" - ");
+		this.secret = haveGrid ? parts.shift().toUpperCase() : "";
+		this.clue = parts.join(" - ");
 		this.index = -1;
 		this.cells = [];
 		this.elem = null;
