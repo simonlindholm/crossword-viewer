@@ -21,7 +21,6 @@ var checkLetterBtn = null;
 var checkWordBtn = null;
 var checkAllBtn = null;
 var explainBtn = null;
-var hasInteracted = false;
 var idb = null;
 
 var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ0123456789-_/\"'?!@$%^&*()=+`[]{}.,:;<>|\\";
@@ -206,7 +205,6 @@ function setValueAndAdvance(val) {
 		let cell = currentCell.clue.cells[ind + 1];
 		selectCell(cell.y, cell.x, currentCell.clue);
 	}
-	hasInteracted = true;
 }
 
 function clearGrid() {
@@ -271,7 +269,7 @@ function revealWord() {
 }
 
 function revealAll() {
-	if (hasInteracted && !confirm($.areYouSureReveal)) return;
+	if (!confirm($.areYouSureReveal)) return;
 	for (let pos of openSquares) {
 		let {y, x} = pos;
 		setCellValue(y, x, grid[y][x]);
