@@ -656,7 +656,7 @@ function init() {
 	for (let i = 0; i < height; i++) {
 		for (let j = 0; j < width; j++) {
 			if (special[i][j] == '#') continue;
-			tableCells[i][j].onclick = function() {
+			tableCells[i][j].onmousedown = function() {
 				var clue = getClueForCell(i, j);
 				selectCell(i, j, clue);
 			};
