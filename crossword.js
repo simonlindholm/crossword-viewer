@@ -1,11 +1,6 @@
 "use strict";
 
-var haveGrid = true;
-if (grid !== null) {
-	grid = grid.toUpperCase().split('\n').filter(x => x);
-} else {
-	haveGrid = false;
-}
+grid = grid && grid.trim().split('\n');
 special = special.trim().split('\n');
 vertClues = vertClues.trim().split('\n');
 horClues = horClues.trim().split('\n');
@@ -41,7 +36,7 @@ class Clue {
 	constructor(line) {
 		console.assert(line, "empty clue line");
 		var parts = line.split(" - ");
-		this.secret = haveGrid ? parts.shift().toUpperCase() : "";
+		this.secret = grid ? normalizeWord(parts.shift()) : "";
 		this.spoiler = haveSpoilers && parts.length > 1 ? parts.pop() : "";
 		this.clue = parts.join(" - ");
 		this.index = -1;
@@ -80,6 +75,18 @@ function openSquare(y, x) {
 
 function descSq(i, j) {
 	return "Row " + (i+1) + " col " + (j+1);
+}
+
+function normalizeLetter(ch) {
+	ch = ch.toUpperCase();
+	if (ch == '|') return 'I';
+	if (ch == '1') return 'I';
+	if (ch == '0') return 'O';
+	return ch;
+}
+
+function normalizeWord(word) {
+	return word.split('').map(normalizeLetter).join('');
 }
 
 function toggleClueForCell(y, x) {
@@ -163,7 +170,7 @@ function getCellValue(y, x) {
 }
 
 function setCellValue(y, x, val) {
-	val = val.toUpperCase();
+	val = normalizeLetter(val);
 	let td = tableCells[y][x];
 	let span = td.querySelector(".letter");
 	span.textContent = val;
@@ -451,7 +458,11 @@ function saveGrid(needIdbSave = true) {
 		.put({"id": crosswordId, grid: enteredGrid, confirmed: confirmedGrid});
 }
 
-function init() {
+function initGrid() {
+	if (grid !== null) {
+		grid = grid.map(normalizeWord);
+	}
+
 	for (let y = 0; y < height; y++) {
 		for (let x = 0; x < width; x++) {
 			if (openSquare(y, x))
@@ -461,6 +472,10 @@ function init() {
 
 	clues.vert = vertClues.map(line => new Clue(line));
 	clues.hor = horClues.map(line => new Clue(line));
+}
+
+function init() {
+	initGrid();
 
 	var errorCont = document.getElementById("errors");
 	var tbody = document.getElementById("grid").querySelector("tbody");
@@ -492,12 +507,12 @@ function init() {
 
 	function addClue(cat, index, cells) {
 		var ct = clueCtrs[cat];
-		if (haveGrid) {
+		if (grid) {
 			var word = "";
 			for (let cell of cells) {
 				word += grid[cell.y][cell.x];
 			}
-			word = word.toUpperCase();
+			word = normalizeWord(word);
 			if (ct == clues[cat].length || !clues[cat].some(c => c.secret === word)) {
 				addError("Missing clue for " + cat + " word " + word, false);
 				return;
@@ -534,9 +549,9 @@ function init() {
 		return ret;
 	}
 
-	if (haveGrid) console.assert(grid.length == height);
+	if (grid) console.assert(grid.length == height);
 	for (var i = 0; i < height; i++) {
-		if (haveGrid) console.assert(grid[i].length == width);
+		if (grid) console.assert(grid[i].length == width);
 		console.assert(special[i].length == width);
 		cellClues.push([]);
 		enteredGrid.push([]);
@@ -559,7 +574,7 @@ function init() {
 				td.classList.add("blocked");
 			else if (special[i][j] != '.')
 				td.classList.add("special-" + special[i][j]);
-			if (haveGrid) {
+			if (grid) {
 				if (special[i][j] == '#' && grid[i][j] != ' ') {
 					addError(descSq(i, j) + " is marked as blocked, but contains a letter " + grid[i][j], false);
 				}
@@ -580,7 +595,7 @@ function init() {
 			if (special[i][j] != '#') {
 				var letter = document.createElement("span");
 				letter.classList.add("letter");
-				if (haveGrid && showLetters) {
+				if (grid && showLetters) {
 					letter.textContent = grid[i][j];
 					enteredGrid[i][j] = grid[i][j];
 					confirmedGrid[i][j] = true;
@@ -651,7 +666,7 @@ function init() {
 		return elem;
 	}
 	addButton(btnCont, $.clear, clearGrid);
-	if (haveGrid) {
+	if (grid) {
 		let btn = addButton(btnCont, $.cheats, toggleCheats);
 		btn.classList.add('toggle-cheats-btn');
 		let table = document.createElement('table');
