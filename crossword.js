@@ -221,6 +221,10 @@ function updateButtonState() {
 		btn.disabled = !currentCell;
 }
 
+function toggleCheats() {
+	document.body.classList.toggle("cheats-visible");
+}
+
 function revealLetter() {
 	if (!currentCell) return;
 	let {y, x} = currentCell;
@@ -615,21 +619,22 @@ function init() {
 	}
 	addButton(btnCont, $.clear, clearGrid);
 	if (haveGrid) {
+		let btn = addButton(btnCont, $.cheats, toggleCheats);
+		btn.classList.add('toggle-cheats-btn');
 		let table = document.createElement('table');
+		table.classList.add('cheat-table');
 
-		let revealRow = document.createElement('tr');
+		let revealRow = table.insertRow();
 		revealRow.insertCell().textContent = $.reveal;
 		needSelBtns.push(addButton(revealRow.insertCell(), $.letter, revealLetter));
 		needSelBtns.push(addButton(revealRow.insertCell(), $.word, revealWord));
 		addButton(revealRow.insertCell(), $.all, revealAll);
-		table.appendChild(revealRow);
 
-		let checkRow = document.createElement('tr');
+		let checkRow = table.insertRow();
 		checkRow.insertCell().textContent = $.check;
 		checkLetterBtn = addButton(checkRow.insertCell(), $.letter, checkLetter);
 		checkWordBtn = addButton(checkRow.insertCell(), $.word, checkWord);
 		checkAllBtn = addButton(checkRow.insertCell(), $.all, checkAll);
-		table.appendChild(checkRow);
 
 		btnCont.appendChild(table);
 		updateButtonState();

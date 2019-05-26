@@ -12,6 +12,15 @@ body {
 	font-size: 1.5rem;
 	padding: 7px 0;
 }
+.toggle-cheats-btn {
+	margin-left: 3px;
+}
+.cheat-table {
+	display: none;
+}
+.cheats-visible .cheat-table {
+	display: block;
+}
 #gridcont {
 	float: left;
 }

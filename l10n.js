@@ -15,6 +15,7 @@ var swedish = {
 	check: "Kontrollera",
 	correctAll: "Helt rätt!",
 	incorrectAll: "Inte helt rätt... :/",
+	cheats: "Fusk...",
 };
 
 var english = {
@@ -32,4 +33,5 @@ var english = {
 	check: "Check",
 	correctAll: "Correct!",
 	incorrectAll: "Not entirely correct... :/",
+	cheats: "Cheats...",
 };
