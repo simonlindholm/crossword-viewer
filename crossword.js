@@ -14,6 +14,7 @@ var height = special.length, width = special[0].length;
 var cellClues = [];
 var tableCells = [];
 var enteredGrid = [];
+var confirmedGrid = [];
 var openSquares = [];
 
 var currentCell = null;
@@ -162,6 +163,10 @@ function setCellValue(y, x, val) {
 	enteredGrid[y][x] = val;
 }
 
+function markConfirmed(y, x) {
+	confirmedGrid[y][x] = true;
+}
+
 function clearOrMoveBack() {
 	if (!currentCell)
 		return;
@@ -212,6 +217,7 @@ function revealLetter() {
 	if (!currentCell) return;
 	let {y, x} = currentCell;
 	setCellValue(y, x, grid[y][x]);
+	markConfirmed(y, x);
 	saveGrid();
 }
 
@@ -221,6 +227,7 @@ function revealWord() {
 	for (let i = 0; i < clue.cells.length; i++) {
 		let {y, x} = clue.cells[i];
 		setCellValue(y, x, grid[y][x]);
+		markConfirmed(y, x);
 	}
 	saveGrid();
 }
@@ -230,15 +237,18 @@ function revealAll() {
 	for (let pos of openSquares) {
 		let {y, x} = pos;
 		setCellValue(y, x, grid[y][x]);
+		markConfirmed(y, x);
 	}
 	saveGrid();
 }
 
-function allMatch(list) {
+function confirmIfAllMatch(list) {
 	for (let pos of list) {
 		if (getCellValue(pos.y, pos.x) !== grid[pos.y][pos.x])
 			return false;
 	}
+	for (let pos of list)
+		markConfirmed(pos.y, pos.x);
 	return true;
 }
 
@@ -251,8 +261,7 @@ function checkWord() {
 }
 
 function checkAll() {
-	let sq = openSquares;
-	if (allMatch(openSquares)) {
+	if (confirmIfAllMatch(openSquares)) {
 		alert($.correctAll);
 	}
 	else {
@@ -372,7 +381,7 @@ function saveGrid(needIdbSave = true) {
 	if (!idb || !needIdbSave) return;
 	idb.transaction(["savedletters"], "readwrite")
 		.objectStore("savedletters")
-		.put({"id": crosswordId, grid: enteredGrid});
+		.put({"id": crosswordId, grid: enteredGrid, confirmed: confirmedGrid});
 }
 
 function init() {
@@ -464,9 +473,11 @@ function init() {
 		console.assert(special[i].length == width);
 		cellClues.push([]);
 		enteredGrid.push([]);
+		confirmedGrid.push([]);
 		for (var j = 0; j < width; j++) {
 			cellClues[i].push([]);
 			enteredGrid[i].push('');
+			confirmedGrid[i].push(false);
 		}
 	}
 
@@ -505,6 +516,7 @@ function init() {
 				if (haveGrid && showLetters) {
 					letter.textContent = grid[i][j];
 					enteredGrid[i][j] = grid[i][j];
+					confirmedGrid[i][j] = true;
 				}
 				letterCont.appendChild(letter);
 			}
