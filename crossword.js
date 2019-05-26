@@ -286,6 +286,7 @@ function confirmIfAllMatch(list) {
 	}
 	for (let pos of list)
 		markConfirmed(pos.y, pos.x);
+	saveGrid();
 	return true;
 }
 
