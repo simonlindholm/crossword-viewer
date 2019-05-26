@@ -1,7 +1,7 @@
 
 var haveGrid = true;
 if (grid !== null) {
-	grid = grid.split('\n').filter(x => x);
+	grid = grid.toUpperCase().split('\n').filter(x => x);
 } else {
 	haveGrid = false;
 }
@@ -150,6 +150,7 @@ function getCellValue(y, x) {
 }
 
 function setCellValue(y, x, val) {
+	val = val.toUpperCase();
 	let td = tableCells[y][x];
 	let span = td.querySelector(".letter");
 	span.textContent = val;
@@ -234,7 +235,7 @@ function handleKeyDown(event) {
 	if (event.altKey || event.ctrlKey || event.metaKey || !event.key) return;
 	let key = event.key;
 	if (key.length === 1 && currentCell && alphabet.indexOf(key.toUpperCase()) !== -1) {
-		setValueAndAdvance(key.toUpperCase());
+		setValueAndAdvance(key);
 		event.preventDefault();
 		event.stopPropagation();
 		return;
