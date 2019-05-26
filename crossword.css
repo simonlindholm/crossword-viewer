@@ -15,10 +15,14 @@ body {
 .toggle-cheats-btn {
 	margin-left: 3px;
 }
-.cheat-table {
+.explain-btn {
 	display: none;
 }
-.cheats-visible .cheat-table {
+.cheat-table {
+	margin: 3px 0;
+	display: none;
+}
+.cheats-visible .cheat-table, .cheats-visible .explain-btn {
 	display: block;
 }
 #gridcont {

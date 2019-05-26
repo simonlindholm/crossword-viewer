@@ -24,6 +24,7 @@ var needSelBtns = [];
 var checkLetterBtn = null;
 var checkWordBtn = null;
 var checkAllBtn = null;
+var explainBtn = null;
 var hasInteracted = false;
 var idb = null;
 
@@ -41,6 +42,7 @@ class Clue {
 		console.assert(line, "empty clue line");
 		var parts = line.split(" - ");
 		this.secret = haveGrid ? parts.shift().toUpperCase() : "";
+		this.spoiler = haveSpoilers && parts.length > 1 ? parts.pop() : "";
 		this.clue = parts.join(" - ");
 		this.index = -1;
 		this.cells = [];
@@ -126,6 +128,7 @@ function unselect() {
 	}
 	currentCell.clue.elem.classList.remove("selected");
 	currentCell = null;
+	document.body.classList.remove("has-selection");
 	updateButtonState();
 }
 
@@ -138,6 +141,7 @@ function selectCell(y, x, clue) {
 		let td = tableCells[cell.y][cell.x];
 		td.classList.add("highlighted");
 	}
+	document.body.classList.add("has-selection");
 	updateButtonState();
 }
 
@@ -217,6 +221,8 @@ function updateButtonState() {
 	checkLetterBtn.disabled = !currentCell || !allFilledIn([currentCell]);
 	checkWordBtn.disabled = !currentCell || !allFilledIn(currentCell.clue.cells);
 	checkAllBtn.disabled = !allFilledIn(openSquares);
+	if (explainBtn)
+		explainBtn.disabled = !currentCell || !allFilledIn(currentCell.clue.cells);
 	for (let btn of needSelBtns)
 		btn.disabled = !currentCell;
 }
@@ -290,6 +296,18 @@ function checkAll() {
 	}
 	else {
 		alert($.incorrectAll);
+	}
+}
+
+function explainWord() {
+	if (!currentCell) return;
+	if (!confirmIfAllMatch(currentCell.clue.cells)) {
+		alert($.incorrectGuess);
+	}
+	else if (!currentCell.clue.spoiler) {
+		alert($.missingSpoiler);
+	} else {
+		alert(currentCell.clue.spoiler);
 	}
 }
 
@@ -637,6 +655,10 @@ function init() {
 		checkAllBtn = addButton(checkRow.insertCell(), $.all, checkAll);
 
 		btnCont.appendChild(table);
+		if (haveSpoilers) {
+			explainBtn = addButton(btnCont, $.explainWord, explainWord);
+			explainBtn.classList.add('explain-btn');
+		}
 		updateButtonState();
 	}
 

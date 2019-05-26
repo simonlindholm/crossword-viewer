@@ -1,6 +1,7 @@
 "use strict";
 
 // Crossword data, set by later .js file
+var haveSpoilers = false;
 var grid = null;
 var special = null;
 var vertClues = null;

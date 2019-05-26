@@ -16,6 +16,9 @@ var swedish = {
 	correctAll: "Helt rätt!",
 	incorrectAll: "Inte helt rätt... :/",
 	cheats: "Fusk...",
+	explainWord: "Förklara ord",
+	incorrectGuess: "Din gissning är fel...",
+	missingSpoiler: "(Det finns ingen förklaring för det här ordet)",
 };
 
 var english = {
@@ -34,4 +37,7 @@ var english = {
 	correctAll: "Correct!",
 	incorrectAll: "Not entirely correct... :/",
 	cheats: "Cheats...",
+	explainWord: "Explain word",
+	incorrectGuess: "Sorry, your guess is incorrect",
+	missingSpoiler: "(There is no explanation for this clue)",
 };
