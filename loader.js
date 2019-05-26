@@ -12,16 +12,23 @@ var crosswordId = '';
 var $ = swedish;
 
 var errElm = document.getElementById("errors");
-var qs = location.search.match(/^\??(.*)/)[1], q = qs.split('&');
+var qs = location.search.match(/^\??(.*)/)[1], qparts = qs.split('&'), q = {};
+for (var part of qparts) {
+	var ind = part.indexOf("=");
+	if (ind !== -1)
+		q[part.substr(0, ind)] = part.substr(ind + 1);
+}
 document.title = $.title;
 if (!qs.length) {
 	errElm.textContent = $.noIdSpecified;
 } else {
-	crosswordId = q[0];
+	crosswordId = qparts[0];
 	document.title += ' #' + crosswordId;
 	var scr = document.createElement("script");
-	if (q.includes("show=1")) showLetters = true;
-	scr.src = 'data/' + crosswordId + '.js';
+	if (q['show'] === '1') showLetters = true;
+	var keyStr = q['key'] ? '-' + q['key'] : '';
+	if (!crosswordId.includes('/') && !keyStr.includes('/'))
+		scr.src = 'data/' + crosswordId + keyStr + '.js';
 	scr.onload = function() {
 		var scr = document.createElement("script");
 		scr.src = 'crossword.js';
