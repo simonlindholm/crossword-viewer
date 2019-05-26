@@ -203,8 +203,10 @@ function setValueAndAdvance(val) {
 
 function clearGrid() {
 	unselect();
-	for (let pos of openSquares)
+	for (let pos of openSquares) {
 		setCellValue(pos.y, pos.x, '');
+		confirmedGrid[pos.y][pos.x] = false;
+	}
 	saveGrid();
 }
 
@@ -216,13 +218,23 @@ function allFilledIn(cells) {
 	return true;
 }
 
+function allConfirmed(cells) {
+	for (let pos of cells) {
+		if (!confirmedGrid[pos.y][pos.x])
+			return false;
+	}
+	return true;
+}
+
 function updateButtonState() {
 	if (!checkAllBtn) return;
 	checkLetterBtn.disabled = !currentCell || !allFilledIn([currentCell]);
 	checkWordBtn.disabled = !currentCell || !allFilledIn(currentCell.clue.cells);
 	checkAllBtn.disabled = !allFilledIn(openSquares);
-	if (explainBtn)
-		explainBtn.disabled = !currentCell || !allFilledIn(currentCell.clue.cells);
+	if (explainBtn) {
+		explainBtn.disabled = !currentCell || !allFilledIn(currentCell.clue.cells) ||
+			(allConfirmed(currentCell.clue.cells) && !currentCell.clue.spoiler);
+	}
 	for (let btn of needSelBtns)
 		btn.disabled = !currentCell;
 }
@@ -412,13 +424,16 @@ function restoreSavedState() {
 					return;
 				}
 				let grid = result.grid;
-				if (!grid || grid.length !== height || grid[0].length !== width) {
+				let conf = result.confirmed;
+				if (!grid || grid.length !== height || grid[0].length !== width ||
+					!conf || conf.length !== height || conf[0].length !== width) {
 					console.log("invalid saved grid, ignoring");
 					return;
 				}
 				for (let pos of openSquares) {
 					let {y, x} = pos;
 					setCellValue(y, x, grid[y][x]);
+					confirmedGrid[y][x] = conf[y][x];
 				}
 				saveGrid(false);
 			};
