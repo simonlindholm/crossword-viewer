@@ -20,6 +20,8 @@ var openSquares = [];
 var currentCell = null;
 
 var needSelBtns = [];
+var checkLetterBtn = null;
+var checkWordBtn = null;
 var checkAllBtn = null;
 var hasInteracted = false;
 var idb = null;
@@ -201,14 +203,19 @@ function clearGrid() {
 	saveGrid();
 }
 
+function allFilledIn(cells) {
+	for (let pos of cells) {
+		if (!getCellValue(pos.y, pos.x))
+			return false;
+	}
+	return true;
+}
+
 function updateButtonState() {
 	if (!checkAllBtn) return;
-	let incomplete = false;
-	for (let pos of openSquares) {
-		if (!getCellValue(pos.y, pos.x))
-			incomplete = true;
-	}
-	checkAllBtn.disabled = incomplete;
+	checkLetterBtn.disabled = !currentCell || !allFilledIn([currentCell]);
+	checkWordBtn.disabled = !currentCell || !allFilledIn(currentCell.clue.cells);
+	checkAllBtn.disabled = !allFilledIn(openSquares);
 	for (let btn of needSelBtns)
 		btn.disabled = !currentCell;
 }
@@ -254,10 +261,22 @@ function confirmIfAllMatch(list) {
 
 function checkLetter() {
 	if (!currentCell) return;
+	if (confirmIfAllMatch([currentCell])) {
+		alert($.correctAll);
+	}
+	else {
+		alert($.incorrectAll);
+	}
 }
 
 function checkWord() {
 	if (!currentCell) return;
+	if (confirmIfAllMatch(currentCell.clue.cells)) {
+		alert($.correctAll);
+	}
+	else {
+		alert($.incorrectAll);
+	}
 }
 
 function checkAll() {
@@ -583,20 +602,24 @@ function init() {
 		par.appendChild(elem);
 		return elem;
 	}
-	addButton(btnCont, $.clear, [], clearGrid);
+	addButton(btnCont, $.clear, clearGrid);
 	if (haveGrid) {
 		let table = document.createElement('table');
-		for (let op of ['reveal', 'check']) {
-			let row = document.createElement('tr');
-			row.insertCell().textContent = (op == 'reveal' ? $.reveal : $.check);
-			needSelBtns.push(addButton(row.insertCell(), $.letter,
-				op == 'reveal' ? revealLetter : checkLetter));
-			needSelBtns.push(addButton(row.insertCell(), $.word,
-				op == 'reveal' ? revealWord : checkWord));
-			checkAllBtn = addButton(row.insertCell(), $.all,
-				op == 'reveal' ? revealAll : checkAll);
-			table.appendChild(row);
-		}
+
+		let revealRow = document.createElement('tr');
+		revealRow.insertCell().textContent = $.reveal;
+		needSelBtns.push(addButton(revealRow.insertCell(), $.letter, revealLetter));
+		needSelBtns.push(addButton(revealRow.insertCell(), $.word, revealWord));
+		addButton(revealRow.insertCell(), $.all, revealAll);
+		table.appendChild(revealRow);
+
+		let checkRow = document.createElement('tr');
+		checkRow.insertCell().textContent = $.check;
+		checkLetterBtn = addButton(checkRow.insertCell(), $.letter, checkLetter);
+		checkWordBtn = addButton(checkRow.insertCell(), $.word, checkWord);
+		checkAllBtn = addButton(checkRow.insertCell(), $.all, checkAll);
+		table.appendChild(checkRow);
+
 		btnCont.appendChild(table);
 		updateButtonState();
 	}
