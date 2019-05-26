@@ -336,7 +336,17 @@ function handleKeyDown(event) {
 
 	case " ":
 	case "Enter":
-		if (!currentCell) return;
+		if (!currentCell) {
+			// If the table has focus, parse space/enter as selecting the first cell.
+			if (document.activeElement === document.getElementById("grid")) {
+				let clue = clues.vert[0] || clues.hor[0];
+				if (clue) {
+					selectCell(clue.cells[0].y, clue.cells[0].x, clue);
+					break;
+				}
+			}
+			return;
+		}
 		let clue = toggleClueForCell(currentCell.y, currentCell.x);
 		selectCell(currentCell.y, currentCell.x, clue);
 		break;
