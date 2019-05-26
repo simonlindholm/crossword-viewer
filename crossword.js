@@ -1,6 +1,7 @@
 "use strict";
 
-grid = grid && grid.trim().split('\n');
+// (The grid can have spaces; don't trim them)
+grid = grid && grid.split('\n').filter(x => x);
 special = special.trim().split('\n');
 vertClues = vertClues.trim().split('\n');
 horClues = horClues.trim().split('\n');
