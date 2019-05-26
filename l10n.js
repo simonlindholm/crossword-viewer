@@ -1,3 +1,5 @@
+"use strict";
+
 var swedish = {
 	title: "Korsord",
 	vert: "Lodrätt",

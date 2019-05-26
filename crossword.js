@@ -1,3 +1,4 @@
+"use strict";
 
 var haveGrid = true;
 if (grid !== null) {

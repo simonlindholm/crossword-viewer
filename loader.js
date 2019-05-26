@@ -1,3 +1,5 @@
+"use strict";
+
 // Crossword data, set by later .js file
 var grid = null;
 var special = null;
