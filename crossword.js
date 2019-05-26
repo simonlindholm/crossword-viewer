@@ -17,6 +17,9 @@ var enteredGrid = [];
 var openSquares = [];
 
 var currentCell = null;
+
+var needSelBtns = [];
+var checkAllBtn = null;
 var idb = null;
 
 var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ0123456789-_/\"'?!@$%^&*()=+`[]{}.,:;<>|\\";
@@ -111,7 +114,6 @@ function getClueForCell(y, x) {
 
 function unselect() {
 	if (!currentCell) return;
-	document.body.classList.remove("have-selection");
 	for (let cell of currentCell.clue.cells) {
 		let td = tableCells[cell.y][cell.x];
 		td.classList.remove("highlighted");
@@ -119,6 +121,7 @@ function unselect() {
 	}
 	currentCell.clue.elem.classList.remove("selected");
 	currentCell = null;
+	updateButtonState();
 }
 
 function selectCell(y, x, clue) {
@@ -130,7 +133,7 @@ function selectCell(y, x, clue) {
 		let td = tableCells[cell.y][cell.x];
 		td.classList.add("highlighted");
 	}
-	document.body.classList.add("have-selection");
+	updateButtonState();
 }
 
 function cursorMove(dy, dx) {
@@ -191,6 +194,18 @@ function clearGrid() {
 	saveGrid();
 }
 
+function updateButtonState() {
+	if (!checkAllBtn) return;
+	let incomplete = false;
+	for (let pos of openSquares) {
+		if (!getCellValue(pos.y, pos.x))
+			incomplete = true;
+	}
+	checkAllBtn.disabled = incomplete;
+	for (let btn of needSelBtns)
+		btn.disabled = !currentCell;
+}
+
 function revealLetter() {
 	if (!currentCell) return;
 	let {y, x} = currentCell;
@@ -215,6 +230,32 @@ function revealAll() {
 		setCellValue(y, x, grid[y][x]);
 	}
 	saveGrid();
+}
+
+function allMatch(list) {
+	for (let pos of list) {
+		if (getCellValue(pos.y, pos.x) !== grid[pos.y][pos.x])
+			return false;
+	}
+	return true;
+}
+
+function checkLetter() {
+	if (!currentCell) return;
+}
+
+function checkWord() {
+	if (!currentCell) return;
+}
+
+function checkAll() {
+	let sq = openSquares;
+	if (allMatch(openSquares)) {
+		alert($.correctAll);
+	}
+	else {
+		alert($.incorrectAll);
+	}
 }
 
 function nextClue(dir) {
@@ -316,6 +357,7 @@ function restoreSavedState() {
 					let {y, x} = pos;
 					setCellValue(y, x, grid[y][x]);
 				}
+				saveGrid(false);
 			};
 		};
 	} catch(e) {
@@ -323,8 +365,9 @@ function restoreSavedState() {
 	}
 }
 
-function saveGrid() {
-	if (!idb) return;
+function saveGrid(needIdbSave = true) {
+	updateButtonState();
+	if (!idb || !needIdbSave) return;
 	idb.transaction(["savedletters"], "readwrite")
 		.objectStore("savedletters")
 		.put({"id": crosswordId, grid: enteredGrid});
@@ -518,20 +561,30 @@ function init() {
 		}
 	}
 
-	function addButton(text, cls, fn) {
+	function addButton(par, text, fn) {
 		let elem = document.createElement('input');
 		elem.type = 'button';
 		elem.value = text;
 		elem.onclick = fn;
-		for (let cl of cls)
-			elem.classList.add(cl);
-		btnCont.appendChild(elem);
+		par.appendChild(elem);
+		return elem;
 	}
-	addButton($.clear, [], clearGrid);
+	addButton(btnCont, $.clear, [], clearGrid);
 	if (haveGrid) {
-		addButton($.revealLetter, ['need-selection'], revealLetter);
-		addButton($.revealWord, ['need-selection'], revealWord);
-		addButton($.revealAll, [], revealAll);
+		let table = document.createElement('table');
+		for (let op of ['reveal', 'check']) {
+			let row = document.createElement('tr');
+			row.insertCell().textContent = (op == 'reveal' ? $.reveal : $.check);
+			needSelBtns.push(addButton(row.insertCell(), $.letter,
+				op == 'reveal' ? revealLetter : checkLetter));
+			needSelBtns.push(addButton(row.insertCell(), $.word,
+				op == 'reveal' ? revealWord : checkWord));
+			checkAllBtn = addButton(row.insertCell(), $.all,
+				op == 'reveal' ? revealAll : checkAll);
+			table.appendChild(row);
+		}
+		btnCont.appendChild(table);
+		updateButtonState();
 	}
 
 	document.addEventListener("keydown", handleKeyDown);

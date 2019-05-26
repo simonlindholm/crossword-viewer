@@ -8,14 +8,18 @@ body {
 	color: red;
 	font-size: 1.5rem;
 }
+#buttons {
+	font-size: 1.5rem;
+	padding: 7px 0;
+}
 #gridcont {
 	float: left;
 }
-table {
+#grid {
 	border-collapse: collapse;
 	border: 2px solid black;
 }
-td {
+#grid td {
 	border: 1px solid black;
 	background-color: white;
 	width: 3.9rem;
@@ -25,17 +29,17 @@ td {
 	color-adjust: exact;
 	-webkit-print-color-adjust: exact;
 }
-td.blocked {
+#grid td.blocked {
 	background-color: black;
 }
-td.has-clue:before {
+#grid td.has-clue:before {
 	content: attr(data-cluenum);
 	position: absolute;
 	margin-left: 2px;
 	margin-top: 0px;
 	font: 1.3rem arial;
 }
-td.special-C:before {
+#grid td.special-C:before {
 	margin-left: 3px;
 }
 .letter-container {
@@ -51,12 +55,12 @@ td.special-C:before {
 	margin-top: 0.9rem;
 	margin-left: 0;
 }
-td:after {
+#grid td:after {
 	height: 100%;
 	display: block;
 	content: "\00a0";
 }
-td.special-C:after {
+#grid td.special-C:after {
 	width: 2px;
 	background-color: black;
 	height: 100%;
@@ -65,27 +69,20 @@ td.special-C:after {
 	color-adjust: exact;
 	-webkit-print-color-adjust: exact;
 }
-td.special-A {
+#grid td.special-A {
 	background-image: url(arrow-tr.png);
 	background-repeat: no-repeat;
 	background-position: top 2px right 2px;
 }
-td.special-B {
+#grid td.special-B {
 	background-image: url(arrow-bl.png);
 	background-repeat: no-repeat;
 	background-position: bottom 2px left 2px;
 }
-td.special-C {
+#grid td.special-C {
 	background-image: url(arrow-tl.png);
 	background-repeat: no-repeat;
 	background-position: top 2px left 19px;
-}
-
-.need-selection {
-	display: none;
-}
-.have-selection .need-selection {
-	display: inline;
 }
 
 .clues-dir {
@@ -109,10 +106,10 @@ h2 {
 }
 
 @media screen {
-td.highlighted {
+#grid td.highlighted {
 	background-color: #ffff80;
 }
-td.selected {
+#grid td.selected {
 	background-color: #e0e040;
 }
 div.selected {
