@@ -339,6 +339,17 @@ function nextClue(dir) {
 	selectCell(clue.cells[0].y, clue.cells[0].x, clue);
 }
 
+function maybeStealFocus() {
+	if (!currentCell && document.activeElement === document.getElementById("grid")) {
+		let clue = clues.vert[0] || clues.hor[0];
+		if (clue) {
+			selectCell(clue.cells[0].y, clue.cells[0].x, clue);
+			return true;
+		}
+	}
+	return false;
+}
+
 function handleKeyDown(event) {
 	if (event.altKey || event.ctrlKey || event.metaKey || !event.key) return;
 	let key = event.key;
@@ -357,37 +368,38 @@ function handleKeyDown(event) {
 
 	case "Down":
 	case "ArrowDown":
+		if (maybeStealFocus())
+			break;
 		cursorMove(1, 0);
 		break;
 
 	case "Up":
 	case "ArrowUp":
+		if (maybeStealFocus())
+			break;
 		cursorMove(-1, 0);
 		break;
 
 	case "Left":
 	case "ArrowLeft":
+		if (maybeStealFocus())
+			break;
 		cursorMove(0, -1);
 		break;
 
 	case "Right":
 	case "ArrowRight":
+		if (maybeStealFocus())
+			break;
 		cursorMove(0, 1);
 		break;
 
 	case " ":
 	case "Enter":
-		if (!currentCell) {
-			// If the table has focus, parse space/enter as selecting the first cell.
-			if (document.activeElement === document.getElementById("grid")) {
-				let clue = clues.vert[0] || clues.hor[0];
-				if (clue) {
-					selectCell(clue.cells[0].y, clue.cells[0].x, clue);
-					break;
-				}
-			}
+		if (maybeStealFocus())
+			break;
+		if (!currentCell)
 			return;
-		}
 		let clue = toggleClueForCell(currentCell.y, currentCell.x);
 		selectCell(currentCell.y, currentCell.x, clue);
 		break;
