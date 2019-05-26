@@ -9,12 +9,22 @@ special = special.trim().split('\n');
 vertClues = vertClues.trim().split('\n');
 horClues = horClues.trim().split('\n');
 
+var height = special.length, width = special[0].length;
+
 var cellClues = [];
 var tableCells = [];
 var enteredGrid = [];
+var openSquares = [];
+
+var currentCell = null;
 var idb = null;
 
 var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ0123456789-_/\"'?!@$%^&*()=+`[]{}.,:;<>|\\";
+
+var clues = {
+	vert: null,
+	hor: null,
+};
 
 var VERT = 1, HOR = 2, REVERSE = 4;
 
@@ -51,13 +61,6 @@ class Clue {
 	}
 }
 
-var clues = {
-	vert: vertClues.map(line => new Clue(line)),
-	hor: horClues.map(line => new Clue(line)),
-};
-
-var height = special.length, width = special[0].length;
-
 function oob(y, x) {
 	return y < 0 || x < 0 || y >= height || x >= width;
 }
@@ -68,8 +71,6 @@ function openSquare(y, x) {
 function descSq(i, j) {
 	return "Row " + (i+1) + " col " + (j+1);
 }
-
-var currentCell = null;
 
 function toggleClueForCell(y, x) {
 	let cands = cellClues[y][x];
@@ -185,12 +186,8 @@ function setValueAndAdvance(val) {
 
 function clearGrid() {
 	unselect();
-	for (let y = 0; y < height; y++) {
-		for (let x = 0; x < width; x++) {
-			if (openSquare(y, x))
-				setCellValue(y, x, '');
-		}
-	}
+	for (let pos of openSquares)
+		setCellValue(pos.y, pos.x, '');
 	saveGrid();
 }
 
@@ -213,11 +210,9 @@ function revealWord() {
 
 function revealAll() {
 	// if (!confirm($.areYouSureReveal)) return;
-	for (let y = 0; y < height; y++) {
-		for (let x = 0; x < width; x++) {
-			if (openSquare(y, x))
-				setCellValue(y, x, grid[y][x]);
-		}
+	for (let pos of openSquares) {
+		let {y, x} = pos;
+		setCellValue(y, x, grid[y][x]);
 	}
 	saveGrid();
 }
@@ -317,11 +312,9 @@ function restoreSavedState() {
 					console.log("invalid saved grid, ignoring");
 					return;
 				}
-				for (let y = 0; y < height; y++) {
-					for (let x = 0; x < width; x++) {
-						if (openSquare(y, x))
-							setCellValue(y, x, grid[y][x]);
-					}
+				for (let pos of openSquares) {
+					let {y, x} = pos;
+					setCellValue(y, x, grid[y][x]);
 				}
 			};
 		};
@@ -338,6 +331,16 @@ function saveGrid() {
 }
 
 function init() {
+	for (let y = 0; y < height; y++) {
+		for (let x = 0; x < width; x++) {
+			if (openSquare(y, x))
+				openSquares.push({y, x});
+		}
+	}
+
+	clues.vert = vertClues.map(line => new Clue(line));
+	clues.hor = horClues.map(line => new Clue(line));
+
 	var errorCont = document.getElementById("errors");
 	var tbody = document.getElementById("grid").querySelector("tbody");
 	var clueCont = document.getElementById("clues");
