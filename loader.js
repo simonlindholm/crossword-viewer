@@ -32,7 +32,7 @@ if (!qs.length) {
 		scr.src = 'data/' + crosswordId + keyStr + '.js?1';
 	scr.onload = function() {
 		var scr = document.createElement("script");
-		scr.src = 'crossword.js?9';
+		scr.src = 'crossword.js?10';
 		document.body.appendChild(scr);
 	};
 	scr.onerror = function() {

@@ -434,13 +434,15 @@ function handleKeyDown(event) {
 }
 
 function handleInput(event) {
-	let key = event.target.value;
-	if (!key) return;
-	if (key.length === 1 && currentCell && alphabet.indexOf(key.toUpperCase()) !== -1) {
-		setValueAndAdvance(key);
-		event.preventDefault();
-		event.stopPropagation();
+	let value = event.target.value;
+	if (!value || !currentCell) return;
+	for (let i = 0; i < value.length; i++) {
+		if (alphabet.indexOf(value[i].toUpperCase()) !== -1) {
+			setValueAndAdvance(value[i]);
+		}
 	}
+	event.preventDefault();
+	event.stopPropagation();
 	event.target.value = '';
 }
 
