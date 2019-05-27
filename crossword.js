@@ -150,6 +150,11 @@ function selectCell(y, x, clue) {
 	}
 	document.body.classList.add("has-selection");
 	updateButtonState();
+	if ('ontouchstart' in document.documentElement) {
+		setTimeout(() => {
+			document.getElementById("dummyinput").focus();
+		});
+	}
 }
 
 function cursorMove(dy, dx) {
@@ -421,6 +426,16 @@ function handleKeyDown(event) {
 
 	event.preventDefault();
 	event.stopPropagation();
+}
+
+function handleInput(event) {
+	let key = event.data;
+	if (key && key.length === 1 && currentCell && alphabet.indexOf(key.toUpperCase()) !== -1) {
+		setValueAndAdvance(key);
+		event.preventDefault();
+		event.stopPropagation();
+		event.target.value = '';
+	}
 }
 
 function restoreSavedState() {
@@ -704,6 +719,7 @@ function init() {
 		updateButtonState();
 	}
 
+	document.addEventListener("input", handleInput);
 	document.addEventListener("keydown", handleKeyDown);
 
 	restoreSavedState();

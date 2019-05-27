@@ -4,6 +4,13 @@ html {
 body {
 	font-size: auto;
 }
+#dummyinput {
+	position: absolute;
+	top: -100px;
+	left: -100px;
+	width: 10px;
+	height: 10px;
+}
 #errors {
 	color: red;
 	font-size: 1.5rem;
