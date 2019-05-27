@@ -30,6 +30,8 @@ var clues = {
 	hor: null,
 };
 
+var useDummyInput = ('ontouchstart' in document.documentElement);
+
 var VERT = 1, HOR = 2, REVERSE = 4;
 
 class Clue {
@@ -150,10 +152,13 @@ function selectCell(y, x, clue) {
 	}
 	document.body.classList.add("has-selection");
 	updateButtonState();
-	if ('ontouchstart' in document.documentElement) {
-		setTimeout(() => {
-			document.getElementById("dummyinput").focus();
-		});
+	if (useDummyInput) {
+		let dummyInput = document.getElementById("dummyinput");
+		if (document.activeElement !== dummyInput) {
+			setTimeout(() => {
+				dummyInput.focus();
+			});
+		}
 	}
 }
 
@@ -429,13 +434,14 @@ function handleKeyDown(event) {
 }
 
 function handleInput(event) {
-	let key = event.data;
-	if (key && key.length === 1 && currentCell && alphabet.indexOf(key.toUpperCase()) !== -1) {
+	let key = event.target.value;
+	if (!key) return;
+	if (key.length === 1 && currentCell && alphabet.indexOf(key.toUpperCase()) !== -1) {
 		setValueAndAdvance(key);
 		event.preventDefault();
 		event.stopPropagation();
-		event.target.value = '';
 	}
+	event.target.value = '';
 }
 
 function restoreSavedState() {
@@ -669,17 +675,19 @@ function init() {
 	for (let i = 0; i < height; i++) {
 		for (let j = 0; j < width; j++) {
 			if (special[i][j] == '#') continue;
-			tableCells[i][j].onmousedown = function() {
+			tableCells[i][j].onmousedown = function(event) {
 				var clue = getClueForCell(i, j);
 				selectCell(i, j, clue);
+				event.preventDefault();
 			};
 		}
 	}
 
 	for (let cat of ['hor', 'vert']) {
 		for (let clue of clues[cat]) {
-			clue.elem.onclick = function() {
+			clue.elem.onclick = function(event) {
 				selectCell(clue.cells[0].y, clue.cells[0].x, clue);
+				event.preventDefault();
 			};
 		}
 	}
@@ -688,7 +696,10 @@ function init() {
 		let elem = document.createElement('input');
 		elem.type = 'button';
 		elem.value = text;
-		elem.onclick = fn;
+		elem.onclick = function(event) {
+			fn();
+			event.preventDefault();
+		};
 		par.appendChild(elem);
 		return elem;
 	}
@@ -719,7 +730,14 @@ function init() {
 		updateButtonState();
 	}
 
-	document.addEventListener("input", handleInput);
+	let dummyInput = document.getElementById("dummyinput");
+	if (useDummyInput) {
+		dummyInput.value = '';
+		dummyInput.addEventListener("input", handleInput);
+	}
+	else {
+		dummyInput.remove();
+	}
 	document.addEventListener("keydown", handleKeyDown);
 
 	restoreSavedState();
