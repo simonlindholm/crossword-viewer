@@ -32,7 +32,8 @@ var clues = {
 
 var useDummyInput = ('ontouchstart' in document.documentElement);
 
-var VERT = 1, HOR = 2, REVERSE = 4;
+var VERT = 1, VERT_REV = 2;
+var HOR = 4, HOR_REV = 8;
 
 class Clue {
 	constructor(line) {
@@ -525,10 +526,13 @@ function init() {
 			throw "stop";
 	}
 
-	function clueDirs(i, j) {
-		if (special[i][j] == 'D') return VERT | REVERSE;
-		if (special[i][j] == '#') return 0;
-		if (special[i][j] == 'A' || special[i][j] == 'B') return 0;
+	function clueStartDirs(i, j) {
+		let sp = special[i][j];
+		if (sp == '#') return 0;
+		if (sp == 'A' || sp == 'B' || sp == 'E' || sp == 'G') return 0;
+		if (sp == 'H') return VERT;
+		if (sp == 'D') return VERT_REV;
+		if (sp == 'F') return VERT | HOR_REV;
 		var res = 0;
 		if (i+1 < height && special[i+1][j] != '#' && (i == 0 || special[i-1][j] == '#')) res |= VERT;
 		if (j+1 < width && special[i][j+1] != '#' && (j == 0 || special[i][j-1] == '#')) res |= HOR;
@@ -570,15 +574,17 @@ function init() {
 		var ret = [];
 		while (openSquare(i, j)) {
 			var sp = special[i][j];
-			if (sp == 'C' && (dir == HOR)) break;
+			if (sp == 'C' && dir == HOR) break;
 			ret.push({y: i, x: j});
 			if (sp == 'A') dir = VERT;
 			if (sp == 'B') dir = HOR;
-			if (sp == 'C' && dir == (VERT | REVERSE)) dir = HOR;
+			if (sp == 'C' && dir == VERT_REV) dir = HOR;
+			if (sp == 'E' && dir == HOR_REV) dir = VERT;
+			if (sp == 'G' && dir == VERT_REV) dir = HOR_REV;
 			if (dir == HOR) j++;
-			else if (dir == (HOR | REVERSE)) j--;
+			else if (dir == HOR_REV) j--;
 			else if (dir == VERT) i++;
-			else if (dir == (VERT | REVERSE)) i--;
+			else if (dir == VERT_REV) i--;
 			else throw new Error("invalid direction " + dir);
 		}
 		return ret;
@@ -617,11 +623,13 @@ function init() {
 					addError(descSq(i, j) + " is not marked as blocked, but does not contain any letter", false);
 				}
 			}
-			var dirs = clueDirs(i, j);
+			var dirs = clueStartDirs(i, j);
 			if (dirs != 0) {
 				clueNum++;
-				if (dirs & VERT) addClue('vert', clueNum, followClue(i, j, dirs & ~HOR));
-				if (dirs & HOR) addClue('hor', clueNum, followClue(i, j, dirs & ~VERT));
+				if (dirs & VERT) addClue('vert', clueNum, followClue(i, j, VERT));
+				if (dirs & VERT_REV) addClue('vert', clueNum, followClue(i, j, VERT_REV));
+				if (dirs & HOR) addClue('hor', clueNum, followClue(i, j, HOR));
+				if (dirs & HOR_REV) addClue('hor', clueNum, followClue(i, j, HOR_REV));
 				td.classList.add('has-clue');
 				td.dataset.cluenum = clueNum;
 			}
