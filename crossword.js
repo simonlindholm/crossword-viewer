@@ -23,7 +23,7 @@ var checkAllBtn = null;
 var explainBtn = null;
 var idb = null;
 
-var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ0123456789-_/\"'?!@$%^&*()=+`[]{}.,:;<>|\\";
+var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ23456789-_/\"'?!@$%^&*()=+`[]{}.,:;<>\\";
 
 var clues = {
 	vert: null,
@@ -85,6 +85,12 @@ function normalizeLetter(ch) {
 	if (ch == '|') return 'I';
 	if (ch == '1') return 'I';
 	if (ch == '0') return 'O';
+	if (ch == 'é') return 'e';
+	if (ch == 'è') return 'e';
+	if (ch == 'á') return 'a';
+	if (ch == 'à') return 'a';
+	if (ch == 'ü') return 'u';
+	if (ch == 'û') return 'u';
 	return ch;
 }
 
@@ -364,7 +370,7 @@ function maybeStealFocus() {
 function handleKeyDown(event) {
 	if (event.altKey || event.ctrlKey || event.metaKey || !event.key) return;
 	let key = event.key;
-	if (key.length === 1 && currentCell && alphabet.indexOf(key.toUpperCase()) !== -1) {
+	if (key.length === 1 && currentCell && alphabet.indexOf(normalizeLetter(key)) !== -1) {
 		setValueAndAdvance(key);
 		event.preventDefault();
 		event.stopPropagation();
