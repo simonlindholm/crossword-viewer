@@ -110,6 +110,16 @@ body:not(.has-selection) #grid:focus {
 	background-repeat: no-repeat;
 	background-position: top 2px left 19px;
 }
+#grid td.special-E {
+	background-image: url(arrow-tl2.png);
+	background-repeat: no-repeat;
+	background-position: top 2px left 2px;
+}
+#grid td.special-G {
+	background-image: url(arrow-tr2.png);
+	background-repeat: no-repeat;
+	background-position: top 2px right 2px;
+}
 
 .clues-dir {
 	float: left;
