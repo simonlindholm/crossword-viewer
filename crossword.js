@@ -672,7 +672,7 @@ function init() {
 			row.appendChild(index);
 			let cl = document.createElement("span");
 			cl.classList.add('clue-text');
-			cl.textContent = clue.clue;
+			cl.textContent = clue.clue + " (" + clue.cells.length + ")";
 			row.appendChild(cl);
 			cont.appendChild(row);
 			clue.elem = row;
