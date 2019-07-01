@@ -36,9 +36,10 @@ var VERT = 1, VERT_REV = 2;
 var HOR = 4, HOR_REV = 8;
 
 class Clue {
-	constructor(line) {
+	constructor(line, dir) {
 		console.assert(line, "empty clue line");
 		var parts = line.split(" - ");
+		this.direction = dir;
 		this.secret = grid ? normalizeWord(parts.shift()) : "";
 		this.spoiler = haveSpoilers && parts.length > 1 ? parts.pop() : "";
 		this.clue = parts.join(" - ");
@@ -60,8 +61,9 @@ class Clue {
 	}
 
 	directionAt(y, x) {
+		if (this.cells.length == 1)
+			return this.direction == 'vert' ? 0 : 1;
 		let ind = this.findCellIndex(y, x);
-		console.assert(this.cells.length >= 2);
 		let otherInd = ind + 1;
 		if (otherInd === this.cells.length)
 			otherInd -= 2;
@@ -512,8 +514,8 @@ function initGrid() {
 		}
 	}
 
-	clues.vert = vertClues.map(line => new Clue(line));
-	clues.hor = horClues.map(line => new Clue(line));
+	clues.vert = vertClues.map(line => new Clue(line, 'vert'));
+	clues.hor = horClues.map(line => new Clue(line, 'hor'));
 }
 
 function init() {
@@ -534,14 +536,18 @@ function init() {
 
 	function clueStartDirs(i, j) {
 		let sp = special[i][j];
+		let len1 = false;
 		if (sp == '#') return 0;
 		if (sp == 'A' || sp == 'B' || sp == 'E' || sp == 'G') return 0;
 		if (sp == 'H') return VERT;
 		if (sp == 'D') return VERT_REV;
 		if (sp == 'F') return VERT | HOR_REV;
+		if (sp == '!') len1 = true;
+		let down = (i+1 < height && special[i+1][j] != '#');
+		let right = (j+1 < width && special[i][j+1] != '#');
 		var res = 0;
-		if (i+1 < height && special[i+1][j] != '#' && (i == 0 || special[i-1][j] == '#')) res |= VERT;
-		if (j+1 < width && special[i][j+1] != '#' && (j == 0 || special[i][j-1] == '#')) res |= HOR;
+		if ((len1 || down) && (i == 0 || special[i-1][j] == '#')) res |= VERT;
+		if ((len1 || right) && (j == 0 || special[i][j-1] == '#')) res |= HOR;
 		return res;
 	}
 
