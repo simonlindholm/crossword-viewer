@@ -28,12 +28,14 @@ if (!qs.length) {
 	document.title += ' #' + crosswordId;
 	var scr = document.createElement("script");
 	if (q['show'] === '1') showLetters = true;
+	var cacheBreak = document.currentScript.src.split("?")[1];
+	cacheBreak = cacheBreak ? "?" + cacheBreak : "";
 	var keyStr = q['key'] ? '-' + q['key'] : '';
 	if (!crosswordId.includes('/') && !keyStr.includes('/'))
 		scr.src = 'data/' + crosswordId + keyStr + '.js?2';
 	scr.onload = function() {
 		var scr = document.createElement("script");
-		scr.src = 'crossword.js?11';
+		scr.src = 'crossword.js?' + cacheBreak;
 		document.body.appendChild(scr);
 	};
 	scr.onerror = function() {
