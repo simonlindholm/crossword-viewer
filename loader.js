@@ -3,6 +3,7 @@
 // Crossword data, set by later .js file
 var haveSpoilers = false;
 var grid = null;
+var legend = null;
 var special = null;
 var vertClues = null;
 var horClues = null;

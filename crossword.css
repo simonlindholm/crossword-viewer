@@ -125,7 +125,12 @@ body:not(.has-selection) #grid:focus {
 	background-repeat: no-repeat;
 	background-position: top 2px left 2px;
 }
-#grid td.special-moveMarkerRight {
+#grid td.has-clue.special-turnUpRight,
+#grid td.has-clue.special-turnLeftDown {
+	background-position-x: left 18px;
+}
+#grid td.has-clue.special-barLeft.special-turnUpRight,
+#grid td.has-clue.special-barLeft.special-turnLeftDown {
 	background-position-x: left 19px;
 }
 
