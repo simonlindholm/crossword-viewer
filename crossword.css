@@ -125,6 +125,20 @@ body:not(.has-selection) #grid:focus {
 	background-repeat: no-repeat;
 	background-position: top 2px left 2px;
 }
+#grid td.special-turnRightUp {
+	background-image: url(arrow-br.png);
+	background-repeat: no-repeat;
+	background-position: bottom 2px right 2px;
+}
+#grid td.special-turnDownLeft {
+	background-image: url(arrow-br2.png);
+	background-repeat: no-repeat;
+	background-position: bottom 2px right 2px;
+}
+#grid td.special-barLeft.special-turnUpRight,
+#grid td.special-barLeft.special-turnLeftDown {
+	background-position-x: left 3px;
+}
 #grid td.has-clue.special-turnUpRight,
 #grid td.has-clue.special-turnLeftDown {
 	background-position-x: left 18px;
