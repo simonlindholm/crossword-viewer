@@ -29,10 +29,10 @@ if (!qs.length) {
 	if (q['show'] === '1') showLetters = true;
 	var keyStr = q['key'] ? '-' + q['key'] : '';
 	if (!crosswordId.includes('/') && !keyStr.includes('/'))
-		scr.src = 'data/' + crosswordId + keyStr + '.js?1';
+		scr.src = 'data/' + crosswordId + keyStr + '.js?2';
 	scr.onload = function() {
 		var scr = document.createElement("script");
-		scr.src = 'crossword.js?10';
+		scr.src = 'crossword.js?11';
 		document.body.appendChild(scr);
 	};
 	scr.onerror = function() {

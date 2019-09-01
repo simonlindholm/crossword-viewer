@@ -35,6 +35,17 @@ var useDummyInput = ('ontouchstart' in document.documentElement);
 var VERT = 1, VERT_REV = 2;
 var HOR = 4, HOR_REV = 8;
 
+var TURNS = {
+	turnRightDown: [HOR, VERT],
+	turnRightUp: [HOR, VERT_REV],
+	turnLeftDown: [HOR_REV, VERT],
+	turnLeftUp: [HOR_REV, VERT_REV],
+	turnDownRight: [VERT, HOR],
+	turnDownLeft: [VERT, HOR_REV],
+	turnUpRight: [VERT_REV, HOR],
+	turnUpLeft: [VERT_REV, HOR_REV],
+};
+
 class Clue {
 	constructor(line, dir) {
 		console.assert(line, "empty clue line");
@@ -535,19 +546,21 @@ function init() {
 	}
 
 	function clueStartDirs(i, j) {
-		let sp = special[i][j];
-		let len1 = false;
-		if (sp == '#') return 0;
-		if (sp == 'A' || sp == 'B' || sp == 'E' || sp == 'G') return 0;
-		if (sp == 'H') return VERT;
-		if (sp == 'D') return VERT_REV;
-		if (sp == 'F') return VERT | HOR_REV;
-		if (sp == '!') len1 = true;
-		let down = (i+1 < height && special[i+1][j] != '#');
-		let right = (j+1 < width && special[i][j+1] != '#');
+		if (special[i][j] == '#') return 0;
+		let sp = legend[special[i][j]] || [];
 		var res = 0;
-		if ((len1 || down) && (i == 0 || special[i-1][j] == '#')) res |= VERT;
-		if ((len1 || right) && (j == 0 || special[i][j-1] == '#')) res |= HOR;
+		if (!sp.some(x => x.startsWith("turn"))) {
+			if (i+1 < height && special[i+1][j] != '#' &&
+				(i == 0 || special[i-1][j] == '#')) res |= VERT;
+			if (j+1 < width && special[i][j+1] != '#' &&
+				(j == 0 || special[i][j-1] == '#')) res |= HOR;
+		}
+		if (sp.includes("noClueRight")) res &= ~HOR;
+		if (sp.includes("noClueDown")) res &= ~VERT;
+		if (sp.includes("clueRight")) res |= HOR;
+		if (sp.includes("clueDown")) res |= VERT;
+		if (sp.includes("clueUp")) res |= VERT_REV;
+		if (sp.includes("clueLeft")) res |= HOR_REV;
 		return res;
 	}
 
@@ -584,20 +597,26 @@ function init() {
 
 	function followClue(i, j, dir) {
 		var ret = [];
+		var first = true;
 		while (openSquare(i, j)) {
-			var sp = special[i][j];
-			if (sp == 'C' && dir == HOR) break;
+			var sp = legend[special[i][j]] || [];
+			if (!first && dir == HOR && sp.includes("barLeft")) break;
+			if (!first && dir == VERT && sp.includes("barUp")) break;
 			ret.push({y: i, x: j});
-			if (sp == 'A') dir = VERT;
-			if (sp == 'B') dir = HOR;
-			if (sp == 'C' && dir == VERT_REV) dir = HOR;
-			if (sp == 'E' && dir == HOR_REV) dir = VERT;
-			if (sp == 'G' && dir == VERT_REV) dir = HOR_REV;
+			for (var turn in TURNS) {
+				if (sp.includes(turn) && dir == TURNS[turn][0]) {
+					dir = TURNS[turn][1];
+					break;
+				}
+			}
+			if (dir == HOR_REV && sp.includes("barLeft")) break;
+			if (dir == VERT_REV && sp.includes("barUp")) break;
 			if (dir == HOR) j++;
 			else if (dir == HOR_REV) j--;
 			else if (dir == VERT) i++;
 			else if (dir == VERT_REV) i--;
 			else throw new Error("invalid direction " + dir);
+			first = false;
 		}
 		return ret;
 	}
@@ -623,10 +642,13 @@ function init() {
 		for (var j = 0; j < width; j++) {
 			var td = document.createElement("td");
 			tableCells[i].push(td);
-			if (special[i][j] == '#')
+			if (special[i][j] == '#') {
 				td.classList.add("blocked");
-			else if (special[i][j] != '.')
-				td.classList.add("special-" + special[i][j]);
+			}
+			else {
+				for (let s of legend[special[i][j]] || [])
+					td.classList.add("special-" + s);
+			}
 			if (grid) {
 				if (special[i][j] == '#' && grid[i][j] != ' ') {
 					addError(descSq(i, j) + " is marked as blocked, but contains a letter " + grid[i][j], false);

@@ -65,9 +65,6 @@ body:not(.has-selection) #grid:focus {
 	margin-top: 0px;
 	font: 1.3rem arial;
 }
-#grid td.special-C:before {
-	margin-left: 3px;
-}
 .letter-container {
 	position: relative;
 }
@@ -86,7 +83,10 @@ body:not(.has-selection) #grid:focus {
 	display: block;
 	content: "\00a0";
 }
-#grid td.special-C:after {
+#grid td.special-barLeft:before {
+	margin-left: 3px;
+}
+#grid td.special-barLeft:after {
 	width: 2px;
 	background-color: black;
 	height: 100%;
@@ -95,30 +95,38 @@ body:not(.has-selection) #grid:focus {
 	color-adjust: exact;
 	-webkit-print-color-adjust: exact;
 }
-#grid td.special-A {
+#grid td.special-turnRightDown {
 	background-image: url(arrow-tr.png);
 	background-repeat: no-repeat;
 	background-position: top 2px right 2px;
 }
-#grid td.special-B {
+#grid td.special-turnUpLeft {
+	background-image: url(arrow-tr2.png);
+	background-repeat: no-repeat;
+	background-position: top 2px right 2px;
+}
+#grid td.special-turnDownRight {
 	background-image: url(arrow-bl.png);
 	background-repeat: no-repeat;
 	background-position: bottom 2px left 2px;
 }
-#grid td.special-C {
+#grid td.special-turnLeftUp {
+	background-image: url(arrow-bl2.png);
+	background-repeat: no-repeat;
+	background-position: bottom 2px left 2px;
+}
+#grid td.special-turnUpRight {
 	background-image: url(arrow-tl.png);
 	background-repeat: no-repeat;
-	background-position: top 2px left 19px;
+	background-position: top 2px left 2px;
 }
-#grid td.special-E {
+#grid td.special-turnLeftDown {
 	background-image: url(arrow-tl2.png);
 	background-repeat: no-repeat;
 	background-position: top 2px left 2px;
 }
-#grid td.special-G {
-	background-image: url(arrow-tr2.png);
-	background-repeat: no-repeat;
-	background-position: top 2px right 2px;
+#grid td.special-moveMarkerRight {
+	background-position-x: left 19px;
 }
 
 .clues-dir {
