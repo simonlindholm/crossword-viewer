@@ -551,9 +551,13 @@ function init() {
 		var res = 0;
 		if (!sp.some(x => x.startsWith("turn"))) {
 			if (i+1 < height && special[i+1][j] != '#' &&
-				(i == 0 || special[i-1][j] == '#')) res |= VERT;
+				(i == 0 || special[i-1][j] == '#' || sp.includes("barUp"))) {
+				res |= VERT;
+			}
 			if (j+1 < width && special[i][j+1] != '#' &&
-				(j == 0 || special[i][j-1] == '#')) res |= HOR;
+				(j == 0 || special[i][j-1] == '#' || sp.includes("barLeft"))) {
+				res |= HOR;
+			}
 		}
 		if (sp.includes("noClueRight")) res &= ~HOR;
 		if (sp.includes("noClueDown")) res &= ~VERT;
