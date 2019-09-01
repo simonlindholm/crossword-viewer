@@ -58,7 +58,7 @@ body:not(.has-selection) #grid:focus {
 	color-adjust: exact;
 	-webkit-print-color-adjust: exact;
 }
-#grid td.blocked {
+#grid td.special-blocked {
 	background-color: black;
 }
 #grid td.has-clue:before {

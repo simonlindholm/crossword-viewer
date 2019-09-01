@@ -32,18 +32,26 @@ var clues = {
 
 var useDummyInput = ('ontouchstart' in document.documentElement);
 
-var VERT = 1, VERT_REV = 2;
-var HOR = 4, HOR_REV = 8;
+var REV = 1;
+var VERT = 2, VERT_REV = VERT | REV;
+var HOR = 4, HOR_REV = HOR | REV;
+
+var DIR_X = {[VERT]: 0, [VERT_REV]: 0, [HOR]: 1, [HOR_REV]: -1};
+var DIR_Y = {[VERT]: 1, [VERT_REV]: -1, [HOR]: 0, [HOR_REV]: 0};
 
 var TURNS = {
-	turnRightDown: [HOR, VERT],
-	turnRightUp: [HOR, VERT_REV],
-	turnLeftDown: [HOR_REV, VERT],
-	turnLeftUp: [HOR_REV, VERT_REV],
-	turnDownRight: [VERT, HOR],
-	turnDownLeft: [VERT, HOR_REV],
-	turnUpRight: [VERT_REV, HOR],
-	turnUpLeft: [VERT_REV, HOR_REV],
+	RightDown: [HOR, VERT],
+	RightUp: [HOR, VERT_REV],
+	LeftDown: [HOR_REV, VERT],
+	LeftUp: [HOR_REV, VERT_REV],
+	DownRight: [VERT, HOR],
+	DownLeft: [VERT, HOR_REV],
+	UpRight: [VERT_REV, HOR],
+	UpLeft: [VERT_REV, HOR_REV],
+	Right: [HOR, HOR],
+	Left: [HOR_REV, HOR_REV],
+	Down: [VERT, VERT],
+	Up: [VERT_REV, VERT_REV],
 };
 
 class Clue {
@@ -71,22 +79,52 @@ class Clue {
 		return this.findCellIndex(y, x) !== -1;
 	}
 
-	directionAt(y, x) {
+	roughDirectionAt(y, x) {
 		if (this.cells.length == 1)
-			return this.direction == 'vert' ? 0 : 1;
+			return this.direction === 'hor' ? HOR : VERT;
 		let ind = this.findCellIndex(y, x);
 		let otherInd = ind + 1;
 		if (otherInd === this.cells.length)
 			otherInd -= 2;
-		return (this.cells[ind].y === this.cells[otherInd].y);
+		return (this.cells[ind].y === this.cells[otherInd].y ? HOR : VERT);
 	}
 }
 
+function getLegend(y, x) {
+	let c = special[y][x];
+	if (c == '#') return ["blocked"];
+	if (c == '.') return [];
+	let sp = legend[c];
+	if (!sp) throw new Error("Tile type " + c + " which is not in legend");
+	return sp;
+}
+
+function reverse(dir) {
+	return dir ^ REV;
+}
 function oob(y, x) {
 	return y < 0 || x < 0 || y >= height || x >= width;
 }
+function blockedSquare(y, x) {
+	return oob(y, x) || getLegend(y, x).includes("blocked");
+}
+function arrowSquare(y, x) {
+	for (let s of getLegend(y, x)) {
+		if (s.startsWith("arrow")) return TURNS[s.slice(5)];
+	}
+	return null;
+}
 function openSquare(y, x) {
-	return !oob(y, x) && special[y][x] != '#';
+	return !blockedSquare(y, x) && !arrowSquare(y, x);
+}
+function openSquareOrArrow(y, x, dir) {
+	if (blockedSquare(y, x)) return false;
+	let arrow = arrowSquare(y, x);
+	if (arrow) {
+		let end = (dir & REV ? 0 : 1);
+		return (arrow[end] == dir || arrow[1-end] == (dir ^ REV));
+	}
+	return true;
 }
 
 function descSq(i, j) {
@@ -119,7 +157,7 @@ function toggleClueForCell(y, x) {
 }
 
 function getClueForCellDirection(y, x, dir) {
-	let cands = cellClues[y][x].filter(c => c.directionAt(y, x) === dir);
+	let cands = cellClues[y][x].filter(c => c.roughDirectionAt(y, x) === (dir & ~REV));
 	if (!cands.length)
 		cands = cellClues[y][x];
 	console.assert(cands.length > 0);
@@ -144,7 +182,7 @@ function getClueForCell(y, x) {
 		return curClue;
 	}
 	// Try to preserve direction
-	let dir = curClue.directionAt(currentCell.y, currentCell.x);
+	let dir = curClue.roughDirectionAt(currentCell.y, currentCell.x);
 	return getClueForCellDirection(y, x, dir);
 }
 
@@ -182,15 +220,26 @@ function selectCell(y, x, clue) {
 	}
 }
 
-function cursorMove(dy, dx) {
-	let ny = currentCell.y + dy;
-	let nx = currentCell.x + dx;
-	if (!currentCell || !openSquare(ny, nx))
-		return;
+function cursorMove(dir) {
+	if (!currentCell) return;
+	let ny = currentCell.y, nx = currentCell.x;
+	for (;;) {
+		ny += DIR_Y[dir];
+		nx += DIR_X[dir];
+		if (blockedSquare(ny, nx))
+			return;
+		let arrow = arrowSquare(ny, nx);
+		if (!arrow)
+			break;
+		if (dir === (arrow[1] ^ REV))
+			dir = arrow[0] ^ REV;
+		else
+			dir = arrow[1];
+	}
 	if (currentCell.clue.hasCell(ny, nx)) {
 		selectCell(ny, nx, currentCell.clue);
 	} else {
-		let clue = getClueForCellDirection(ny, nx, (dy === 0));
+		let clue = getClueForCellDirection(ny, nx, dir);
 		selectCell(ny, nx, clue);
 	}
 }
@@ -400,28 +449,28 @@ function handleKeyDown(event) {
 	case "ArrowDown":
 		if (maybeStealFocus())
 			break;
-		cursorMove(1, 0);
+		cursorMove(VERT);
 		break;
 
 	case "Up":
 	case "ArrowUp":
 		if (maybeStealFocus())
 			break;
-		cursorMove(-1, 0);
+		cursorMove(VERT_REV);
 		break;
 
 	case "Left":
 	case "ArrowLeft":
 		if (maybeStealFocus())
 			break;
-		cursorMove(0, -1);
+		cursorMove(HOR_REV);
 		break;
 
 	case "Right":
 	case "ArrowRight":
 		if (maybeStealFocus())
 			break;
-		cursorMove(0, 1);
+		cursorMove(HOR);
 		break;
 
 	case " ":
@@ -546,25 +595,25 @@ function init() {
 	}
 
 	function clueStartDirs(i, j) {
-		if (special[i][j] == '#') return 0;
-		let sp = legend[special[i][j]] || [];
+		if (!openSquare(i, j)) return 0;
+		let sp = getLegend(i, j);
 		var res = 0;
 		if (!sp.some(x => x.startsWith("turn"))) {
-			if (i+1 < height && special[i+1][j] != '#' &&
-				(i == 0 || special[i-1][j] == '#' || sp.includes("barUp"))) {
-				res |= VERT;
+			if (openSquareOrArrow(i+1, j, VERT) &&
+				(i == 0 || !openSquareOrArrow(i-1, j, VERT_REV) || sp.includes("barUp"))) {
+				res |= 1 << VERT;
 			}
-			if (j+1 < width && special[i][j+1] != '#' &&
-				(j == 0 || special[i][j-1] == '#' || sp.includes("barLeft"))) {
-				res |= HOR;
+			if (openSquareOrArrow(i, j+1, HOR) &&
+				(j == 0 || !openSquareOrArrow(i, j-1, HOR_REV) || sp.includes("barLeft"))) {
+				res |= 1 << HOR;
 			}
 		}
-		if (sp.includes("noClueRight")) res &= ~HOR;
-		if (sp.includes("noClueDown")) res &= ~VERT;
-		if (sp.includes("clueRight")) res |= HOR;
-		if (sp.includes("clueDown")) res |= VERT;
-		if (sp.includes("clueUp")) res |= VERT_REV;
-		if (sp.includes("clueLeft")) res |= HOR_REV;
+		if (sp.includes("noClueRight")) res &= ~(1 << HOR);
+		if (sp.includes("noClueDown")) res &= ~(1 << VERT);
+		if (sp.includes("clueRight")) res |= 1 << HOR;
+		if (sp.includes("clueDown")) res |= 1 << VERT;
+		if (sp.includes("clueUp")) res |= 1 << VERT_REV;
+		if (sp.includes("clueLeft")) res |= 1 << HOR_REV;
 		return res;
 	}
 
@@ -602,24 +651,36 @@ function init() {
 	function followClue(i, j, dir) {
 		var ret = [];
 		var first = true;
-		while (openSquare(i, j)) {
-			var sp = legend[special[i][j]] || [];
+		while (!oob(i, j)) {
+			var sp = getLegend(i, j);
+			if (sp.includes("blocked")) break;
 			if (!first && dir == HOR && sp.includes("barLeft")) break;
 			if (!first && dir == VERT && sp.includes("barUp")) break;
-			ret.push({y: i, x: j});
-			for (var turn in TURNS) {
-				if (sp.includes(turn) && dir == TURNS[turn][0]) {
-					dir = TURNS[turn][1];
+			let foundArrow = null;
+			for (let turn in TURNS) {
+				if (sp.includes("arrow" + turn)) {
+					foundArrow = turn;
 					break;
+				}
+			}
+			if (foundArrow) {
+				if (dir != TURNS[foundArrow][0]) break;
+				dir = TURNS[foundArrow][1];
+			} else {
+				ret.push({y: i, x: j});
+				for (var turn in TURNS) {
+					if (sp.includes("turn" + turn) && dir == TURNS[turn][0]) {
+						dir = TURNS[turn][1];
+						break;
+					}
 				}
 			}
 			if (dir == HOR_REV && sp.includes("barLeft")) break;
 			if (dir == VERT_REV && sp.includes("barUp")) break;
-			if (dir == HOR) j++;
-			else if (dir == HOR_REV) j--;
-			else if (dir == VERT) i++;
-			else if (dir == VERT_REV) i--;
-			else throw new Error("invalid direction " + dir);
+			if (dir & HOR)
+				j += (dir & REV ? -1 : 1);
+			else
+				i += (dir & REV ? -1 : 1);
 			first = false;
 		}
 		return ret;
@@ -646,34 +707,29 @@ function init() {
 		for (var j = 0; j < width; j++) {
 			var td = document.createElement("td");
 			tableCells[i].push(td);
-			if (special[i][j] == '#') {
-				td.classList.add("blocked");
-			}
-			else {
-				for (let s of legend[special[i][j]] || [])
-					td.classList.add("special-" + s);
-			}
+			for (let s of getLegend(i, j))
+				td.classList.add("special-" + s);
 			if (grid) {
-				if (special[i][j] == '#' && grid[i][j] != ' ') {
+				if (!openSquare(i, j) && grid[i][j] != ' ') {
 					addError(descSq(i, j) + " is marked as blocked, but contains a letter " + grid[i][j], false);
 				}
-				if (special[i][j] != '#' && grid[i][j] == ' ') {
+				if (openSquare(i, j) && grid[i][j] == ' ') {
 					addError(descSq(i, j) + " is not marked as blocked, but does not contain any letter", false);
 				}
 			}
 			var dirs = clueStartDirs(i, j);
 			if (dirs != 0) {
 				clueNum++;
-				if (dirs & VERT) addClue('vert', clueNum, followClue(i, j, VERT));
-				if (dirs & VERT_REV) addClue('vert', clueNum, followClue(i, j, VERT_REV));
-				if (dirs & HOR) addClue('hor', clueNum, followClue(i, j, HOR));
-				if (dirs & HOR_REV) addClue('hor', clueNum, followClue(i, j, HOR_REV));
+				for (let dir of [VERT, VERT_REV, HOR, HOR_REV]) {
+					if (dirs & (1 << dir))
+						addClue(dir & HOR ? 'hor' : 'vert', clueNum, followClue(i, j, dir));
+				}
 				td.classList.add('has-clue');
 				td.dataset.cluenum = clueNum;
 			}
 			var letterCont = document.createElement("div");
 			letterCont.classList.add("letter-container");
-			if (special[i][j] != '#') {
+			if (openSquare(i, j)) {
 				var letter = document.createElement("span");
 				letter.classList.add("letter");
 				if (grid && showLetters) {
@@ -722,10 +778,15 @@ function init() {
 
 	for (let i = 0; i < height; i++) {
 		for (let j = 0; j < width; j++) {
-			if (special[i][j] == '#') continue;
+			if (blockedSquare(i, j)) continue;
 			tableCells[i][j].onmousedown = function(event) {
-				var clue = getClueForCell(i, j);
-				selectCell(i, j, clue);
+				let y = i, x = j, arrow;
+				while ((arrow = arrowSquare(y, x))) {
+					y += DIR_Y[arrow[1]];
+					x += DIR_X[arrow[1]];
+				}
+				var clue = getClueForCell(y, x);
+				selectCell(y, x, clue);
 				event.preventDefault();
 			};
 		}
