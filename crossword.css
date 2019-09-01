@@ -35,9 +35,12 @@ body {
 #gridcont {
 	float: left;
 }
+#gridborder {
+	border: 1px solid black;
+}
 #grid {
 	border-collapse: collapse;
-	border: 2px solid black;
+	border: 1px solid black;
 }
 #grid:focus {
 	outline: none;
@@ -46,12 +49,12 @@ body:not(.has-selection) #grid:focus {
 	border-color: orange;
 }
 #grid td {
+	box-sizing: border-box;
 	border: 1px solid black;
 	background-color: white;
-	width: 3.9rem;
-	height: 4.2rem;
+	width: 4.0rem;
+	height: 4.3rem;
 	padding: 0;
-	overflow: hidden;
 	color-adjust: exact;
 	-webkit-print-color-adjust: exact;
 }
@@ -78,22 +81,25 @@ body:not(.has-selection) #grid:focus {
 	margin-top: 0.9rem;
 	margin-left: 0;
 }
+td.special-barLeft .letter {
+	margin-left: -0.1rem;
+}
+td.special-barUp .letter {
+	margin-top: 0.8rem;
+}
+#grid td.has-clue.special-barUp:before {
+	margin-top: -1px;
+}
 #grid td:after {
 	height: 100%;
 	display: block;
 	content: "\00a0";
 }
-#grid td.special-barLeft:before {
-	margin-left: 3px;
+#grid td.special-barUp {
+	border-top-width: 3px;
 }
-#grid td.special-barLeft:after {
-	width: 2px;
-	background-color: black;
-	height: 100%;
-	display: block;
-	content: "\00a0";
-	color-adjust: exact;
-	-webkit-print-color-adjust: exact;
+#grid td.special-barLeft {
+	border-left-width: 3px;
 }
 #grid td.special-turnRightDown {
 	background-image: url(arrow-tr.png);
@@ -135,17 +141,9 @@ body:not(.has-selection) #grid:focus {
 	background-repeat: no-repeat;
 	background-position: bottom 2px right 2px;
 }
-#grid td.special-barLeft.special-turnUpRight,
-#grid td.special-barLeft.special-turnLeftDown {
-	background-position-x: left 3px;
-}
 #grid td.has-clue.special-turnUpRight,
 #grid td.has-clue.special-turnLeftDown {
 	background-position-x: left 18px;
-}
-#grid td.has-clue.special-barLeft.special-turnUpRight,
-#grid td.has-clue.special-barLeft.special-turnLeftDown {
-	background-position-x: left 19px;
 }
 
 .clues-dir {
