@@ -60,6 +60,7 @@ body:not(.has-selection) #gridborder:focus {
 	width: 4.0rem;
 	height: 4.3rem;
 	padding: 0;
+	overflow: hidden;
 	color-adjust: exact;
 	-webkit-print-color-adjust: exact;
 }
