@@ -102,42 +102,42 @@ td.special-barUp .letter {
 	border-left-width: 3px;
 }
 #grid td.special-turnRightDown {
-	background-image: url(arrow-tr.png);
+	background-image: url(imgs/arrow-tr.png);
 	background-repeat: no-repeat;
 	background-position: top 2px right 2px;
 }
 #grid td.special-turnUpLeft {
-	background-image: url(arrow-tr2.png);
+	background-image: url(imgs/arrow-tr2.png);
 	background-repeat: no-repeat;
 	background-position: top 2px right 2px;
 }
 #grid td.special-turnDownRight {
-	background-image: url(arrow-bl.png);
+	background-image: url(imgs/arrow-bl.png);
 	background-repeat: no-repeat;
 	background-position: bottom 2px left 2px;
 }
 #grid td.special-turnLeftUp {
-	background-image: url(arrow-bl2.png);
+	background-image: url(imgs/arrow-bl2.png);
 	background-repeat: no-repeat;
 	background-position: bottom 2px left 2px;
 }
 #grid td.special-turnUpRight {
-	background-image: url(arrow-tl.png);
+	background-image: url(imgs/arrow-tl.png);
 	background-repeat: no-repeat;
 	background-position: top 2px left 2px;
 }
 #grid td.special-turnLeftDown {
-	background-image: url(arrow-tl2.png);
+	background-image: url(imgs/arrow-tl2.png);
 	background-repeat: no-repeat;
 	background-position: top 2px left 2px;
 }
 #grid td.special-turnRightUp {
-	background-image: url(arrow-br.png);
+	background-image: url(imgs/arrow-br.png);
 	background-repeat: no-repeat;
 	background-position: bottom 2px right 2px;
 }
 #grid td.special-turnDownLeft {
-	background-image: url(arrow-br2.png);
+	background-image: url(imgs/arrow-br2.png);
 	background-repeat: no-repeat;
 	background-position: bottom 2px right 2px;
 }
