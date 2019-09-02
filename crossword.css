@@ -42,11 +42,13 @@ body {
 	border-collapse: collapse;
 	border: 1px solid black;
 }
-#grid:focus {
+#gridborder:focus {
 	outline: none;
 }
-body:not(.has-selection) #grid:focus {
+body:not(.has-selection) #gridborder:focus {
 	border-color: orange;
+	border-width: 2px;
+	margin: -1px;
 }
 #grid td {
 	box-sizing: border-box;

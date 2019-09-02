@@ -419,7 +419,7 @@ function nextClue(dir) {
 }
 
 function maybeStealFocus() {
-	if (!currentCell && document.activeElement === document.getElementById("grid")) {
+	if (!currentCell && document.activeElement === document.getElementById("gridborder")) {
 		let clue = clues.vert[0] || clues.hor[0];
 		if (clue) {
 			selectCell(clue.cells[0].y, clue.cells[0].x, clue);
