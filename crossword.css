@@ -37,6 +37,9 @@ body {
 }
 #gridborder {
 	border: 1px solid black;
+	background-color: black;
+	color-adjust: exact;
+	-webkit-print-color-adjust: exact;
 }
 #grid {
 	border-collapse: collapse;
