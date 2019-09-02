@@ -145,6 +145,16 @@ td.special-barUp .letter {
 #grid td.has-clue.special-turnLeftDown {
 	background-position-x: left 18px;
 }
+#grid td.special-arrowRightDown {
+	background-image: url(imgs/large-arrow-tr.png);
+	background-repeat: no-repeat;
+	background-position: center;
+}
+#grid td.special-arrowRight {
+	background-image: url(imgs/large-arrow-r.png);
+	background-repeat: no-repeat;
+	background-position: center;
+}
 
 .clues-dir {
 	float: left;
