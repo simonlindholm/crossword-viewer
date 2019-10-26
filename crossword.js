@@ -726,6 +726,9 @@ function init() {
 				}
 				td.classList.add('has-clue');
 				td.dataset.cluenum = clueNum;
+				if (clueNum < 10) {
+					td.classList.add('has-single-digit-clue');
+				}
 			}
 			var letterCont = document.createElement("div");
 			letterCont.classList.add("letter-container");
