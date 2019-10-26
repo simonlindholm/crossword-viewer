@@ -622,7 +622,7 @@ function init() {
 		hor: 0,
 	};
 
-	function addClue(cat, index, cells) {
+	function addClue(cat, index, cells, lengthDesc) {
 		var ct = clueCtrs[cat];
 		if (grid) {
 			var word = "";
@@ -645,11 +645,14 @@ function init() {
 
 		clues[cat][ct].index = index;
 		clues[cat][ct].cells = cells;
+		clues[cat][ct].lengthDesc = lengthDesc;
 		clueCtrs[cat]++;
 	}
 
 	function followClue(i, j, dir) {
-		var ret = [];
+		var path = [];
+		var lengthDesc = '';
+		var curPartSize = 0;
 		var first = true;
 		while (!oob(i, j)) {
 			var sp = getLegend(i, j);
@@ -666,8 +669,11 @@ function init() {
 			if (foundArrow) {
 				if (dir != TURNS[foundArrow][0]) break;
 				dir = TURNS[foundArrow][1];
+				lengthDesc += String(curPartSize) + ",";
+				curPartSize = 0;
 			} else {
-				ret.push({y: i, x: j});
+				path.push({y: i, x: j});
+				curPartSize++;
 				for (var turn in TURNS) {
 					if (sp.includes("turn" + turn) && dir == TURNS[turn][0]) {
 						dir = TURNS[turn][1];
@@ -683,7 +689,8 @@ function init() {
 				i += (dir & REV ? -1 : 1);
 			first = false;
 		}
-		return ret;
+		lengthDesc += String(curPartSize);
+		return {path, lengthDesc};
 	}
 
 	if (grid) console.assert(grid.length == height);
@@ -721,8 +728,10 @@ function init() {
 			if (dirs != 0) {
 				clueNum++;
 				for (let dir of [VERT, VERT_REV, HOR, HOR_REV]) {
-					if (dirs & (1 << dir))
-						addClue(dir & HOR ? 'hor' : 'vert', clueNum, followClue(i, j, dir));
+					if (dirs & (1 << dir)) {
+						let {path, lengthDesc} = followClue(i, j, dir);
+						addClue(dir & HOR ? 'hor' : 'vert', clueNum, path, lengthDesc);
+					}
 				}
 				td.classList.add('has-clue');
 				td.dataset.cluenum = clueNum;
@@ -763,7 +772,7 @@ function init() {
 			row.appendChild(index);
 			let cl = document.createElement("span");
 			cl.classList.add('clue-text');
-			cl.textContent = clue.clue + " (" + clue.cells.length + ")";
+			cl.textContent = clue.clue + " (" + clue.lengthDesc + ")";
 			row.appendChild(cl);
 			cont.appendChild(row);
 			clue.elem = row;
