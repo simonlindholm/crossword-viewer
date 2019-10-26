@@ -653,6 +653,7 @@ function init() {
 		var path = [];
 		var lengthDesc = '';
 		var curPartSize = 0;
+		var infStops = 0;
 		var splitDash = false;
 		var first = true;
 		while (!oob(i, j)) {
@@ -693,6 +694,10 @@ function init() {
 					}
 				}
 			}
+			if (sp.includes("infStop") && ++infStops >= 2) {
+				lengthDesc += '∞';
+				break;
+			}
 			if (dir == HOR_REV) {
 				if (sp.includes("barLeft")) break;
 				if (sp.includes("dashLeft")) splitDash = true;
@@ -707,7 +712,9 @@ function init() {
 				i += (dir & REV ? -1 : 1);
 			first = false;
 		}
-		lengthDesc += String(curPartSize);
+		if (infStops < 2) {
+			lengthDesc += String(curPartSize);
+		}
 		return {path, lengthDesc};
 	}
 
