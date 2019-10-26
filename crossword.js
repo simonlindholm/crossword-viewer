@@ -653,12 +653,24 @@ function init() {
 		var path = [];
 		var lengthDesc = '';
 		var curPartSize = 0;
+		var splitDash = false;
 		var first = true;
 		while (!oob(i, j)) {
 			var sp = getLegend(i, j);
 			if (sp.includes("blocked")) break;
-			if (!first && dir == HOR && sp.includes("barLeft")) break;
-			if (!first && dir == VERT && sp.includes("barUp")) break;
+			if (!first && dir == HOR) {
+				if (sp.includes("barLeft")) break;
+				if (sp.includes("dashLeft")) splitDash = true;
+			}
+			if (!first && dir == VERT) {
+				if (sp.includes("barUp")) break;
+				if (sp.includes("dashUp")) splitDash = true;
+			}
+			if (splitDash) {
+				splitDash = false;
+				lengthDesc += String(curPartSize) + "-";
+				curPartSize = 0;
+			}
 			let foundArrow = null;
 			for (let turn in TURNS) {
 				if (sp.includes("arrow" + turn)) {
@@ -681,8 +693,14 @@ function init() {
 					}
 				}
 			}
-			if (dir == HOR_REV && sp.includes("barLeft")) break;
-			if (dir == VERT_REV && sp.includes("barUp")) break;
+			if (dir == HOR_REV) {
+				if (sp.includes("barLeft")) break;
+				if (sp.includes("dashLeft")) splitDash = true;
+			}
+			if (dir == VERT_REV) {
+				if (sp.includes("barUp")) break;
+				if (sp.includes("dashUp")) splitDash = true;
+			}
 			if (dir & HOR)
 				j += (dir & REV ? -1 : 1);
 			else
