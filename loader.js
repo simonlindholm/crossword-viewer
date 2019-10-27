@@ -7,6 +7,7 @@ var legend = null;
 var special = null;
 var vertClues = null;
 var horClues = null;
+var stripComments = true;
 
 var showLetters = false;
 var crosswordId = '';

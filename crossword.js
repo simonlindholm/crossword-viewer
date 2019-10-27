@@ -57,7 +57,8 @@ var TURNS = {
 class Clue {
 	constructor(line, dir) {
 		console.assert(line, "empty clue line");
-		var parts = line.split(" - ");
+		if (stripComments && grid) line = line.split('//')[0];
+		var parts = line.trim().split(" - ");
 		this.direction = dir;
 		this.secret = grid ? normalizeWord(parts.shift()) : "";
 		this.spoiler = haveSpoilers && parts.length > 1 ? parts.pop() : "";
