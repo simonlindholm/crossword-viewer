@@ -63,11 +63,12 @@ body:not(.has-selection) #gridborder:focus {
 	overflow: hidden;
 	color-adjust: exact;
 	-webkit-print-color-adjust: exact;
+	--cell-height: 4.2rem;
 }
 #grid td.special-blocked {
 	background-color: black;
 }
-#grid td.has-clue:before {
+#grid td.has-clue::before {
 	content: attr(data-cluenum);
 	position: absolute;
 	margin-left: 2px;
@@ -93,10 +94,10 @@ td.special-barLeft .letter {
 td.special-barUp .letter {
 	margin-top: 0.8rem;
 }
-#grid td.has-clue.special-barUp:before {
+#grid td.has-clue.special-barUp::before {
 	margin-top: -1px;
 }
-#grid td:after {
+#grid td::after {
 	height: 100%;
 	display: block;
 	content: "\00a0";
@@ -106,6 +107,24 @@ td.special-barUp .letter {
 }
 #grid td.special-barLeft {
 	border-left-width: 3px;
+}
+#grid .dash {
+	/* Allow child elements to be positioned relative to this one, while also
+	 * being outside the flow. (position: relative on the parent element does
+	 * not work for this purpose.) */
+	position: absolute;
+}
+#grid td.special-dashLeft > .dash::before {
+	/* Rectangle that looks like a "-" */
+	content: '';
+	display: block;
+	position: absolute;
+	width: 9px;
+	height: 3px;
+	top: calc(var(--cell-height) / 2 - 2px);
+	left: -5px;
+	background-color: black;
+	pointer-events: none;
 }
 #grid td.special-turnRightDown {
 	background-image: url(imgs/arrow-tr.png);

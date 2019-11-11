@@ -740,8 +740,17 @@ function init() {
 		for (var j = 0; j < width; j++) {
 			var td = document.createElement("td");
 			tableCells[i].push(td);
-			for (let s of getLegend(i, j))
+			let needDashEl = false;
+			for (let s of getLegend(i, j)) {
 				td.classList.add("special-" + s);
+				if (s == 'dashLeft' || s == 'dashUp')
+					needDashEl = true;
+			}
+			if (needDashEl) {
+				let dashEl = document.createElement("span");
+				dashEl.classList.add("dash");
+				td.appendChild(dashEl);
+			}
 			if (grid) {
 				if (!openSquare(i, j) && grid[i][j] != ' ') {
 					addError(descSq(i, j) + " is marked as blocked, but contains a letter " + grid[i][j], false);
