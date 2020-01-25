@@ -827,6 +827,7 @@ function init() {
 		for (let j = 0; j < width; j++) {
 			if (blockedSquare(i, j)) continue;
 			tableCells[i][j].onmousedown = function(event) {
+				if (event.which !== 1) return;
 				let y = i, x = j, arrow;
 				while ((arrow = arrowSquare(y, x))) {
 					y += DIR_Y[arrow[1]];
