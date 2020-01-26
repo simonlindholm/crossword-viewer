@@ -1,9 +1,6 @@
 html {
 	font-size: 10px;
 }
-body {
-	font-size: auto;
-}
 #dummyinput {
 	position: absolute;
 	top: -100px;

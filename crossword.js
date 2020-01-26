@@ -579,6 +579,41 @@ function initGrid() {
 	clues.hor = horClues.map(line => new Clue(line, 'hor'));
 }
 
+function printStats() {
+	let closed = 0;
+	let uncovered = 0;
+	let len2 = 0;
+	let numClues = 0;
+	let sumLength = 0;
+	for (let y = 0; y < height; y++) {
+		for (let x = 0; x < width; x++) {
+			if (openSquare(y, x)) {
+				if (cellClues[y][x].length === 1)
+					uncovered++;
+			} else {
+				closed++;
+			}
+		}
+	}
+	for (const dir of ["vert", "hor"]) {
+		for (const clue of clues[dir]) {
+			if (clue.cells.length === 2)
+				len2++;
+			numClues++;
+			sumLength += clue.cells.length;
+		}
+	}
+
+	function fmtRatio(num, den) {
+		return num + "/" + den + " (" + (num / den * 100).toFixed(1) + "%)";
+	}
+	console.log("Width: " + width + ", height: " + height);
+	console.log("Black cells: " + fmtRatio(closed, width * height));
+	console.log("Uncovered cells: " + fmtRatio(uncovered, width * height - closed));
+	console.log("Length 2: " + fmtRatio(len2, numClues));
+	console.log("Average length: " + (sumLength / numClues).toFixed(2));
+}
+
 function init() {
 	initGrid();
 
@@ -898,6 +933,8 @@ function init() {
 	document.addEventListener("keydown", handleKeyDown);
 
 	restoreSavedState();
+
+	printStats();
 }
 
 try {
