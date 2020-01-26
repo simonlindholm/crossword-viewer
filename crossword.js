@@ -670,7 +670,7 @@ function init() {
 			}
 			if (splitDash) {
 				splitDash = false;
-				lengthDesc += String(curPartSize) + "-";
+				lengthDesc += String(curPartSize) + "–";
 				curPartSize = 0;
 			}
 			let foundArrow = null;
