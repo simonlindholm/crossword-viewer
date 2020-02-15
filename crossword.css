@@ -186,6 +186,9 @@ td.special-barUp .letter {
 	background-repeat: no-repeat;
 	background-position: center;
 }
+#grid td.special-letterDisplay {
+	background-image: none;
+}
 
 .clues-dir {
 	float: left;

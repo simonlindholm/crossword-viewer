@@ -776,10 +776,14 @@ function init() {
 			var td = document.createElement("td");
 			tableCells[i].push(td);
 			let needDashEl = false;
-			for (let s of getLegend(i, j)) {
+			let letterDisplay = '';
+			for (let leg of getLegend(i, j)) {
+				let s = leg.split("=")[0];
 				td.classList.add("special-" + s);
 				if (s == 'dashLeft' || s == 'dashUp')
 					needDashEl = true;
+				if (s == 'letterDisplay')
+					letterDisplay = leg.split("=")[1];
 			}
 			if (needDashEl) {
 				let dashEl = document.createElement("span");
@@ -811,10 +815,12 @@ function init() {
 			}
 			var letterCont = document.createElement("div");
 			letterCont.classList.add("letter-container");
-			if (openSquare(i, j)) {
+			if (openSquare(i, j) || letterDisplay) {
 				var letter = document.createElement("span");
 				letter.classList.add("letter");
-				if (grid && showLetters) {
+				if (letterDisplay) {
+					letter.textContent = letterDisplay;
+				} else if (grid && showLetters) {
 					letter.textContent = grid[i][j];
 					enteredGrid[i][j] = grid[i][j];
 					confirmedGrid[i][j] = true;
