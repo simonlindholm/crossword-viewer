@@ -713,16 +713,10 @@ function init() {
 				lengthDesc += String(curPartSize) + "–";
 				curPartSize = 0;
 			}
-			let foundArrow = null;
-			for (let turn in TURNS) {
-				if (sp.includes("arrow" + turn)) {
-					foundArrow = turn;
-					break;
-				}
-			}
+			let foundArrow = arrowSquare(i, j, dir);
 			if (foundArrow) {
-				if (dir != TURNS[foundArrow][0]) break;
-				dir = TURNS[foundArrow][1];
+				if (dir != foundArrow[0]) break;
+				dir = foundArrow[1];
 				lengthDesc += String(curPartSize) + ",";
 				curPartSize = 0;
 			} else {
