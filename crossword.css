@@ -165,11 +165,11 @@ td.special-barUp .letter {
 }
 #grid td.has-clue.special-turnUpRight,
 #grid td.has-clue.special-turnLeftDown {
-	background-position-x: left 18px;
+	background-position-x: 18px;
 }
 #grid td.has-single-digit-clue.special-turnUpRight,
 #grid td.has-single-digit-clue.special-turnLeftDown {
-	background-position-x: left 10px;
+	background-position-x: 10px;
 }
 #grid td.special-arrowRightDown {
 	background-image: url(imgs/large-arrow-tr.png);
