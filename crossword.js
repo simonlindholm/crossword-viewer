@@ -109,18 +109,23 @@ function oob(y, x) {
 function blockedSquare(y, x) {
 	return oob(y, x) || getLegend(y, x).includes("blocked");
 }
-function arrowSquare(y, x) {
+function arrowSquare(y, x, entryDir) {
+	let arrow = null;
 	for (let s of getLegend(y, x)) {
-		if (s.startsWith("arrow")) return TURNS[s.slice(5)];
+		if (s.startsWith("arrow")) {
+			arrow = TURNS[s.slice(5)];
+			if (entryDir === arrow[0] || entryDir === (arrow[1] ^ REV))
+				return arrow;
+		}
 	}
-	return null;
+	return arrow;
 }
 function openSquare(y, x) {
 	return !blockedSquare(y, x) && !arrowSquare(y, x);
 }
 function openSquareOrArrow(y, x, dir) {
 	if (blockedSquare(y, x)) return false;
-	let arrow = arrowSquare(y, x);
+	let arrow = arrowSquare(y, x, dir);
 	if (arrow) {
 		let end = (dir & REV ? 0 : 1);
 		return (arrow[end] == dir || arrow[1-end] == (dir ^ REV));
@@ -229,7 +234,7 @@ function cursorMove(dir) {
 		nx += DIR_X[dir];
 		if (blockedSquare(ny, nx))
 			return;
-		let arrow = arrowSquare(ny, nx);
+		let arrow = arrowSquare(ny, nx, dir);
 		if (!arrow)
 			break;
 		if (dir === (arrow[1] ^ REV))
@@ -869,10 +874,11 @@ function init() {
 			if (blockedSquare(i, j)) continue;
 			tableCells[i][j].onmousedown = function(event) {
 				if (event.which !== 1) return;
-				let y = i, x = j, arrow;
-				while ((arrow = arrowSquare(y, x))) {
-					y += DIR_Y[arrow[1]];
-					x += DIR_X[arrow[1]];
+				let y = i, x = j, arrow, dir = null;
+				while ((arrow = arrowSquare(y, x, dir))) {
+					dir = arrow[1];
+					y += DIR_Y[dir];
+					x += DIR_X[dir];
 				}
 				var clue = getClueForCell(y, x);
 				selectCell(y, x, clue);
