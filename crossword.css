@@ -181,6 +181,11 @@ td.special-barUp .letter {
 	background-repeat: no-repeat;
 	background-position: center;
 }
+#grid td.special-arrowDownRight {
+	background-image: url(imgs/large-arrow-bl.png);
+	background-repeat: no-repeat;
+	background-position: center;
+}
 
 .clues-dir {
 	float: left;
