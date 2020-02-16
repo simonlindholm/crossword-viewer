@@ -38,6 +38,7 @@ if (!qs.length) {
 		var scr = document.createElement("script");
 		scr.src = 'crossword.js?' + cacheBreak;
 		document.body.appendChild(scr);
+		document.title = $.title + ' #' + crosswordId;
 	};
 	scr.onerror = function() {
 		errElm.textContent = $.noSuchCrossword;

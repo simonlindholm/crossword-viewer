@@ -23,7 +23,7 @@ var swedish = {
 
 var english = {
 	title: "Crossword",
-	ver: "Down",
+	vert: "Down",
 	hor: "Across",
 	clear: "Clear",
 	noIdSpecified: "Please add ?1, ?2, ... to the URL to load a specific crossword.",

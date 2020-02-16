@@ -692,7 +692,7 @@ function init() {
 
 	function followClue(i, j, dir) {
 		var path = [];
-		var lengthDesc = '';
+		var lengthDesc = "";
 		var curPartSize = 0;
 		var infStops = 0;
 		var splitDash = false;
@@ -730,7 +730,7 @@ function init() {
 				}
 			}
 			if (sp.includes("infStop") && ++infStops >= 2) {
-				lengthDesc += '∞';
+				lengthDesc += "∞";
 				break;
 			}
 			if (dir == HOR_REV) {
