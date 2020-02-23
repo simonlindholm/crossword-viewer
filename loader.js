@@ -8,6 +8,7 @@ var special = null;
 var vertClues = null;
 var horClues = null;
 var stripComments = true;
+var indexhtml = '';
 
 var showLetters = false;
 var crosswordId = '';
@@ -23,7 +24,15 @@ for (var part of qparts) {
 }
 document.title = $.title;
 if (!qs.length) {
-	errElm.textContent = $.noIdSpecified;
+	// errElm.textContent = $.noIdSpecified;
+	document.body.classList.add("indexpage");
+	var cont = document.getElementById("indexpage");
+	var scr = document.createElement("script");
+	scr.src = 'data/index.js?' + Math.random();
+	scr.onload = function() {
+		cont.innerHTML = indexhtml;
+	};
+	document.body.appendChild(scr);
 } else {
 	crosswordId = qparts[0];
 	document.title += ' #' + crosswordId;
