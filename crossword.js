@@ -137,6 +137,53 @@ function descSq(i, j) {
 	return "Row " + (i+1) + " col " + (j+1);
 }
 
+function dirToString(dir) {
+	if (dir == VERT) return "vert";
+	if (dir == HOR) return "hor";
+	if (dir == VERT_REV) return "rvert";
+	if (dir == HOR_REV) return "rhor";
+	throw new Error("bad direction " + dir);
+}
+
+function conditionMatches(leg, dir, usedSplit) {
+	for (let clause of leg.split(",")) {
+		let [what, expected] = clause.split("=");
+		let neg = false;
+		if (what[what.length - 1] === "!") {
+			neg = true;
+			what = what.slice(0, -1);
+		}
+		if (what === "dir" && (expected === dirToString(dir)) === neg)
+			return false;
+		if (what === "fork" && (expected === (usedSplit ? "1" : "0")) === neg)
+			return false;
+	}
+	return true;
+}
+
+function evalLegendConditions(sp, dir, usedSplit) {
+	let any = false;
+	for (let leg of sp) {
+		if (leg.startsWith("if=")) any = true;
+	}
+	if (!any) return sp;
+
+	let newSp = [];
+	for (let leg of sp) {
+		if (leg.startsWith("if=")) {
+			leg = leg.slice(3);
+			let ind = leg.indexOf(";");
+			if (conditionMatches(leg.slice(0, ind), dir, usedSplit)) {
+				leg = leg.slice(ind + 1);
+			} else {
+				continue;
+			}
+		}
+		newSp.push(leg);
+	}
+	return newSp;
+}
+
 function normalizeLetter(ch) {
 	ch = ch.toUpperCase();
 	if (ch == '|') return 'I';
@@ -690,15 +737,26 @@ function init() {
 		clueCtrs[cat]++;
 	}
 
-	function followClue(i, j, dir) {
-		var path = [];
-		var lengthDesc = "";
-		var curPartSize = 0;
-		var infStops = 0;
-		var splitDash = false;
-		var first = true;
+	function followClue(i, j, dir, callback, path=[], lengthDesc="", curPartSize=0,
+			infStops=0, splitDash=false, first=true, lengthDescOverride=null,
+			forked=false) {
 		while (!oob(i, j)) {
-			var sp = getLegend(i, j);
+			let sp = getLegend(i, j);
+			let split = false;
+			if (sp.includes("fork")) {
+				// First don't take the split, then continue with the current path
+				// (tail recursive for efficiency, I guess, and to not have to
+				// rewrite too much code)
+				if (forked) {
+					split = false;
+				} else {
+					followClue(i, j, dir, callback, path.slice(), lengthDesc, curPartSize,
+						infStops, splitDash, first, lengthDescOverride, true);
+					split = true;
+				}
+			}
+			sp = evalLegendConditions(sp, dir, split);
+			forked = false;
 			if (sp.includes("blocked")) break;
 			if (!first && dir == HOR) {
 				if (sp.includes("barLeft")) break;
@@ -707,6 +765,11 @@ function init() {
 			if (!first && dir == VERT) {
 				if (sp.includes("barUp")) break;
 				if (sp.includes("dashUp")) splitDash = true;
+			}
+			for (let leg of sp) {
+				if (leg.startsWith("length=")) {
+					lengthDescOverride = leg.slice(leg.indexOf("=") + 1);
+				}
 			}
 			if (splitDash) {
 				splitDash = false;
@@ -722,10 +785,12 @@ function init() {
 			} else {
 				path.push({y: i, x: j});
 				curPartSize++;
-				for (var turn in TURNS) {
-					if (sp.includes("turn" + turn) && dir == TURNS[turn][0]) {
-						dir = TURNS[turn][1];
-						break;
+				if (!sp.includes("ignoreTurn")) {
+					for (var turn in TURNS) {
+						if (sp.includes("turn" + turn) && dir == TURNS[turn][0]) {
+							dir = TURNS[turn][1];
+							break;
+						}
 					}
 				}
 			}
@@ -750,7 +815,10 @@ function init() {
 		if (infStops < 2) {
 			lengthDesc += String(curPartSize);
 		}
-		return {path, lengthDesc};
+		if (lengthDescOverride !== null) {
+			lengthDesc = lengthDescOverride;
+		}
+		callback(path, lengthDesc);
 	}
 
 	if (grid) console.assert(grid.length == height);
@@ -802,8 +870,9 @@ function init() {
 				clueNum++;
 				for (let dir of [VERT, VERT_REV, HOR, HOR_REV]) {
 					if (dirs & (1 << dir)) {
-						let {path, lengthDesc} = followClue(i, j, dir);
-						addClue(dir & HOR ? 'hor' : 'vert', clueNum, path, lengthDesc);
+						followClue(i, j, dir, (path, lengthDesc) => {
+							addClue(dir & HOR ? 'hor' : 'vert', clueNum, path, lengthDesc);
+						});
 					}
 				}
 				td.classList.add('has-clue');
