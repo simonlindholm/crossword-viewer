@@ -62,7 +62,7 @@ class Clue {
 		this.direction = dir;
 		this.secret = grid ? normalizeWord(parts.shift()) : "";
 		this.spoiler = haveSpoilers && parts.length > 1 ? parts.pop() : "";
-		this.clue = parts.join(" - ");
+		this.text = parts.join(" - ");
 		this.index = -1;
 		this.cells = [];
 		this.elem = null;
@@ -916,7 +916,7 @@ function init() {
 			row.appendChild(index);
 			let cl = document.createElement("span");
 			cl.classList.add('clue-text');
-			cl.textContent = clue.clue + " (" + clue.lengthDesc + ")";
+			cl.textContent = clue.text + " (" + clue.lengthDesc + ")";
 			row.appendChild(cl);
 			cont.appendChild(row);
 			clue.elem = row;
