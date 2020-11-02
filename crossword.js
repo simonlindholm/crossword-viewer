@@ -738,42 +738,43 @@ function init() {
 	}
 
 	function followClue(i, j, dir, callback, path=[], lengthDesc="", curPartSize=0,
-			infStops=0, splitDash=false, first=true, lengthDescOverride=null,
+			infStops=0, split=null, first=true, lengthDescOverride=null,
 			forked=false) {
 		while (!oob(i, j)) {
 			let sp = getLegend(i, j);
-			let split = false;
+			let usedSplit = false;
 			if (sp.includes("fork")) {
 				// First don't take the split, then continue with the current path
-				// (tail recursive for efficiency, I guess, and to not have to
-				// rewrite too much code)
+				// (tail recursive to avoid having to rewrite too much code)
 				if (forked) {
-					split = false;
+					usedSplit = false;
 				} else {
 					followClue(i, j, dir, callback, path.slice(), lengthDesc, curPartSize,
-						infStops, splitDash, first, lengthDescOverride, true);
-					split = true;
+						infStops, split, first, lengthDescOverride, true);
+					usedSplit = true;
 				}
 			}
-			sp = evalLegendConditions(sp, dir, split);
+			sp = evalLegendConditions(sp, dir, usedSplit);
 			forked = false;
 			if (sp.includes("blocked")) break;
 			if (!first && dir == HOR) {
 				if (sp.includes("barLeft")) break;
-				if (sp.includes("dashLeft")) splitDash = true;
+				if (sp.includes("wordBarLeft")) split = "bar";
+				if (sp.includes("dashLeft")) split = "dash";
 			}
 			if (!first && dir == VERT) {
 				if (sp.includes("barUp")) break;
-				if (sp.includes("dashUp")) splitDash = true;
+				if (sp.includes("wordBarUp")) split = "bar";
+				if (sp.includes("dashUp")) split = "dash";
 			}
 			for (let leg of sp) {
 				if (leg.startsWith("length=")) {
 					lengthDescOverride = leg.slice(leg.indexOf("=") + 1);
 				}
 			}
-			if (splitDash) {
-				splitDash = false;
-				lengthDesc += String(curPartSize) + "–";
+			if (split) {
+				lengthDesc += String(curPartSize) + (split === "dash" ? "–" : ",");
+				split = null;
 				curPartSize = 0;
 			}
 			let foundArrow = arrowSquare(i, j, dir);
@@ -800,11 +801,13 @@ function init() {
 			}
 			if (dir == HOR_REV) {
 				if (sp.includes("barLeft")) break;
-				if (sp.includes("dashLeft")) splitDash = true;
+				if (sp.includes("wordBarLeft")) split = "bar";
+				if (sp.includes("dashLeft")) split = "dash";
 			}
 			if (dir == VERT_REV) {
 				if (sp.includes("barUp")) break;
-				if (sp.includes("dashUp")) splitDash = true;
+				if (sp.includes("wordBarUp")) split = "bar";
+				if (sp.includes("dashUp")) split = "dash";
 			}
 			if (dir & HOR)
 				j += (dir & REV ? -1 : 1);

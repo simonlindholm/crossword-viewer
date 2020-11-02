@@ -95,13 +95,16 @@ body:not(.has-selection) #gridborder:focus {
 	margin-top: 0.9rem;
 	margin-left: 0;
 }
-td.special-barLeft .letter {
+td.special-barLeft .letter,
+td.special-wordBarLeft .letter {
 	margin-left: -0.1rem;
 }
-td.special-barUp .letter {
+td.special-barUp .letter,
+td.special-wordBarUp .letter {
 	margin-top: 0.8rem;
 }
-#grid td.has-clue.special-barUp::before {
+#grid td.has-clue.special-barUp::before,
+#grid td.has-clue.special-wordBarUp::before {
 	margin-top: -1px;
 }
 #grid td::after {
@@ -109,10 +112,12 @@ td.special-barUp .letter {
 	display: block;
 	content: "\00a0";
 }
-#grid td.special-barUp {
+#grid td.special-barUp,
+#grid td.special-wordBarUp {
 	border-top-width: 3px;
 }
-#grid td.special-barLeft {
+#grid td.special-barLeft,
+#grid td.special-wordBarLeft {
 	border-left-width: 3px;
 }
 #grid .dash {
