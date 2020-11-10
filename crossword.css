@@ -2,11 +2,14 @@ html {
 	font-size: 10px;
 }
 #dummyinput {
+	/* Off-screen, and with a font-size large enough to avoid automatic zoom
+	 * on focus. */
 	position: absolute;
 	top: -100px;
 	left: -100px;
 	width: 10px;
 	height: 10px;
+	font-size: 50px;
 }
 #indexpage {
 	display: none;
