@@ -919,7 +919,7 @@ function init() {
 			row.appendChild(index);
 			let cl = document.createElement("span");
 			cl.classList.add('clue-text');
-			cl.textContent = clue.text + " (" + clue.lengthDesc + ")";
+			cl.textContent = clue.text + "\xa0(" + clue.lengthDesc + ")";
 			row.appendChild(cl);
 			cont.appendChild(row);
 			clue.elem = row;
