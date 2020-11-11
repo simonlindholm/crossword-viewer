@@ -103,9 +103,6 @@ function getLegend(y, x) {
 	return sp;
 }
 
-function reverse(dir) {
-	return dir ^ REV;
-}
 function oob(y, x) {
 	return y < 0 || x < 0 || y >= height || x >= width;
 }
