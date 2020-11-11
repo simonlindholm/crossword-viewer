@@ -31,6 +31,8 @@ var clues = {
 };
 
 var useDummyInput = ('ontouchstart' in document.documentElement);
+var userAgent = navigator.userAgent.toLowerCase();
+var isIos = (userAgent.includes("iphone") || userAgent.includes("ipad"));
 
 var REV = 1;
 var VERT = 2, VERT_REV = VERT | REV;
@@ -255,7 +257,8 @@ function unselect() {
 function selectCell(y, x, clue) {
 	unselect();
 	currentCell = {y, x, clue};
-	tableCells[y][x].classList.add("selected");
+	let selectedTd = tableCells[y][x];
+	selectedTd.classList.add("selected");
 	clue.elem.classList.add("selected");
 	for (let cell of clue.cells) {
 		let td = tableCells[cell.y][cell.x];
@@ -265,10 +268,18 @@ function selectCell(y, x, clue) {
 	updateButtonState();
 	if (useDummyInput) {
 		let dummyInput = document.getElementById("dummyinput");
+		if (!isIos) {
+			// Reposition the input field, to avoid an annoying scroll-into-
+			// view effect once the current event handler returns on Firefox
+			// and Chrome-on-Android. The 25 px offset hides the 10x10 input
+			// field behind the 42x42 td cell, while keeping it away from the
+			// top of the screen to avoid scroll-into-view from happening due
+			// to the input field being near the end of the viewport.
+			dummyInput.style.left = (selectedTd.offsetLeft + 25) + "px";
+			dummyInput.style.top = (selectedTd.offsetTop + 25) + "px";
+		}
 		if (document.activeElement !== dummyInput) {
-			setTimeout(() => {
-				dummyInput.focus();
-			});
+			dummyInput.focus({preventScroll: true});
 		}
 	}
 }
