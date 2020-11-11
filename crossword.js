@@ -32,6 +32,7 @@ var clues = {
 
 var useDummyInput = ('ontouchstart' in document.documentElement);
 var userAgent = navigator.userAgent.toLowerCase();
+var isFirefox = userAgent.includes("firefox");
 var isIos = (userAgent.includes("iphone") || userAgent.includes("ipad"));
 
 var REV = 1;
@@ -577,6 +578,15 @@ function handleInput(event) {
 	event.preventDefault();
 	event.stopPropagation();
 	event.target.value = '';
+	if (isFirefox) {
+		// The input element's value as seen from the keyboard seems to persist
+		// despite .value being cleared, with additional key hits appending
+		// additional letters. Blur and refocus to avoid this. This does come
+		// at the cost of input field scroll-into-views, but that seems hard to
+		// avoid.
+		event.target.blur();
+		event.target.focus({preventScroll: true});
+	}
 }
 
 function restoreSavedState() {
