@@ -245,24 +245,43 @@ div.selected > .clue-text {
 }
 
 @media print {
-/* @page {size: landscape}, remove clear: both? */
+/* @page {size: landscape} to force landscape mode? */
 html {
 	font-size: 8px;
 }
 h2 {
-	margin: 10px 5px 5px 5px;
-}
-#clues {
-	clear: both;
+	margin: 10px 5px 3px 0;
 }
 #buttons {
 	display: none;
 }
+#clues {
+	/* Clues below grid */
+	clear: both;
+}
 .clues-dir {
-	float: left;
-	margin: 0 6px;
-	width: 300px;
+	box-sizing: border-box;
+	padding: 0 6px;
+	margin: 0;
+	width: 50%;
 	font: 1.8rem Georgia, serif;
 	line-height: 1.3;
+}
+}
+
+@media print and (orientation: landscape) {
+#clues {
+	/* Clues to the side */
+	clear: none;
+}
+h2 {
+	margin-top: 0;
+}
+#gridcont {
+	padding-right: 5px;
+}
+.clues-dir {
+	/* TODO: half the remaining space, somehow */
+	width: 250px;
 }
 }
