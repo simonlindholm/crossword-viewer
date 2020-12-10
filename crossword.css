@@ -205,6 +205,11 @@ td.special-wordBarUp .letter {
 	background-repeat: no-repeat;
 	background-position: center;
 }
+#grid td.special-arrowDown {
+	background-image: url(imgs/large-arrow-d.png);
+	background-repeat: no-repeat;
+	background-position: center;
+}
 #grid td.special-letterDisplay {
 	background-image: none;
 }
