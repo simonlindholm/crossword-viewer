@@ -25,6 +25,7 @@ body.indexpage #gridcont {
 #errors {
 	color: red;
 	font-size: 1.5rem;
+	float: left;
 }
 #buttons {
 	font-size: 1.5rem;

@@ -3,8 +3,8 @@
 // (The grid can have spaces; don't trim them)
 grid = grid && grid.split('\n').filter(x => x);
 special = special.trim().split('\n');
-vertClues = vertClues.trim().split('\n');
-horClues = horClues.trim().split('\n');
+vertClues = vertClues ? vertClues.trim().split('\n') : [];
+horClues = horClues ? horClues.trim().split('\n') : [];
 
 var height = special.length, width = special[0].length;
 
@@ -691,11 +691,13 @@ function init() {
 	var tbody = document.getElementById("grid").querySelector("tbody");
 	var clueCont = document.getElementById("clues");
 	var btnCont = document.getElementById("buttons");
+	var hasErrors = false;
 
 	function addError(msg, fatal) {
 		var div = document.createElement("div");
 		div.textContent = msg;
 		errorCont.appendChild(div);
+		hasErrors = true;
 		if (fatal)
 			throw "stop";
 	}
@@ -728,6 +730,11 @@ function init() {
 		hor: 0,
 	};
 
+	var gridWords = {
+		vert: [],
+		hor: [],
+	};
+
 	function addClue(cat, index, cells, lengthDesc) {
 		var ct = clueCtrs[cat];
 		if (grid) {
@@ -735,8 +742,9 @@ function init() {
 			for (let cell of cells) {
 				word += grid[cell.y][cell.x];
 			}
+			gridWords[cat].push(word.toLowerCase());
 			word = normalizeWord(word);
-			if (ct == clues[cat].length || !clues[cat].some(c => c.secret === word)) {
+			if (ct === clues[cat].length || !clues[cat].some(c => c.secret === word)) {
 				addError("Missing clue for " + cat + " word " + word, false);
 				return;
 			}
@@ -949,8 +957,19 @@ function init() {
 
 	for (let cat of ['hor', 'vert']) {
 		if (clueCtrs[cat] < clues[cat].length) {
-			addError("Unused clue for word " + clues[cat][clueCtrs[cat]].secret, true);
+			addError("Unused clue for word " + clues[cat][clueCtrs[cat]].secret, false);
 		}
+	}
+
+	if (hasErrors && gridWords.vert.length > 0) {
+		let bootstrapText =
+			"vertClues = `\n" + gridWords.vert.join("\n") + "\n`;\n\n" +
+			"horClues = `\n" + gridWords.hor.join("\n") + "\n`;";
+		let bootstrapEl = document.createElement("textarea");
+		bootstrapEl.value = bootstrapText;
+		bootstrapEl.rows = 10;
+		bootstrapEl.cols = 20;
+		errorCont.insertBefore(bootstrapEl, errorCont.firstChild);
 	}
 
 	for (let i = 0; i < height; i++) {
