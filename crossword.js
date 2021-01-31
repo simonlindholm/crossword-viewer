@@ -736,21 +736,30 @@ function init() {
 	};
 
 	function addClue(cat, index, cells, lengthDesc) {
-		var ct = clueCtrs[cat];
+		let ct = clueCtrs[cat];
 		if (grid) {
-			var word = "";
+			let word = "";
 			for (let cell of cells) {
 				word += grid[cell.y][cell.x];
 			}
 			gridWords[cat].push(word.toLowerCase());
 			word = normalizeWord(word);
-			if (ct === clues[cat].length || !clues[cat].some(c => c.secret === word)) {
+			if (ct === clues[cat].length) {
 				addError("Missing clue for " + cat + " word " + word, false);
 				return;
+			} else if (clues[cat][ct].secret !== word) {
+				let nextClued = clues[cat][ct].secret;
+				if (clues[cat].some(c => c.secret === word)) {
+					addError("Wrongly ordered clue " + word + ", expected it to come before " + nextClued, false);
+					return;
+				} else {
+					let fatal = (word.length !== nextClued.length);
+					addError("Incorrect clue: saw " + word + ", expected " + nextClued, fatal);
+				}
 			}
-			else if (clues[cat][ct].secret !== word) {
-				addError("Wrongly ordered clue " + word + ", expected it to come before " + clues[cat][ct].secret, true);
-			}
+		}
+		if (ct === clues[cat].length) {
+			addError("Missing clue for " + cat, true);
 		}
 
 		for (let cell of cells) {
