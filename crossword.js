@@ -564,6 +564,16 @@ function handleKeyDown(event) {
 	event.stopPropagation();
 }
 
+function handleKeyup(event) {
+	// When we grab focus for the crossword, we unfortunately have to prevent
+	// keyboard navigation for buttons from working.
+	if (event.altKey || event.ctrlKey || event.metaKey || !event.key) return;
+	let key = event.key;
+	if ((key === " " || key === "Enter") && currentCell) {
+		event.preventDefault();
+	}
+}
+
 function handleInput(event) {
 	let value = event.target.value;
 	if (!value || !currentCell) return;
@@ -1055,6 +1065,7 @@ function init() {
 		dummyInput.remove();
 	}
 	document.addEventListener("keydown", handleKeyDown);
+	document.addEventListener("keyup", handleKeyup);
 
 	restoreSavedState();
 
