@@ -694,6 +694,67 @@ function printStats() {
 	console.log("Average length: " + (sumLength / numClues).toFixed(2));
 }
 
+function printTransposed() {
+	function transposeLegendKey(key) {
+		const rev = {U: "Down", D: "Up", R: "Left", L: "Right"};
+		return '"' + key.replace(/Up|Left|Down|Right/g, m => rev[m[0]]) + '"';
+	}
+
+	let res = "";
+	if (grid) {
+		res += "grid = `\n";
+		for (let i = 0; i < width; i++) {
+			for (let j = 0; j < height; j++) {
+				res += grid[j][i];
+			}
+			res += "\n";
+		}
+		res += "`;\n\n";
+	}
+
+	res += "special = `\n";
+	for (let i = 0; i < width; i++) {
+		for (let j = 0; j < height; j++) {
+			res += special[j][i];
+		}
+		res += "\n";
+	}
+	res += "`;\n";
+
+	let legendKeys = Object.keys(legend);
+	if (legendKeys.length > 0) {
+		res += "\nlegend = {\n";
+		for (let key of legendKeys) {
+			res += "\t" + key + ": [" +
+				legend[key].map(transposeLegendKey).join(",") +
+				"],\n";
+		}
+		res += "};\n";
+	}
+
+	for (let dir of ["vert", "hor"]) {
+		let dirClues = clues[dir === "vert" ? "hor" : "vert"].slice();
+		dirClues.sort((a, b) => {
+			let ap = a.cells[0];
+			let bp = b.cells[0];
+			return ap.x != bp.x ? ap.x - bp.x : ap.y - bp.y;
+		});
+		res += "\n" + dir + "Clues = `\n";
+		for (let clue of dirClues) {
+			if (grid) {
+				res += clue.secret.toLowerCase();
+				if (clue.text) res += " - ";
+			}
+			res += clue.text;
+			if (clue.spoiler || (haveSpoilers && clue.text.includes(" - ")))
+				res += " - " + clue.spoiler;
+			res += "\n";
+		}
+		res += "`;\n";
+	}
+	console.log(res);
+}
+
 function init() {
 	initGrid();
 
@@ -1070,6 +1131,7 @@ function init() {
 	restoreSavedState();
 
 	printStats();
+	// printTransposed();
 }
 
 try {
