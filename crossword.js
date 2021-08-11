@@ -696,7 +696,7 @@ function printStats() {
 
 function printTransposed() {
 	function transposeLegendKey(key) {
-		const rev = {U: "Down", D: "Up", R: "Left", L: "Right"};
+		const rev = {U: "Left", D: "Right", R: "Down", L: "Up"};
 		return '"' + key.replace(/Up|Left|Down|Right/g, m => rev[m[0]]) + '"';
 	}
 
