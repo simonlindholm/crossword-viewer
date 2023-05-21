@@ -30,7 +30,6 @@ var clues = {
 	hor: null,
 };
 
-var useDummyInput = ('ontouchstart' in document.documentElement);
 var userAgent = navigator.userAgent.toLowerCase();
 var isFirefox = userAgent.includes("firefox");
 var isIos = (userAgent.includes("iphone") || userAgent.includes("ipad"));
@@ -264,21 +263,19 @@ function selectCell(y, x, clue) {
 	}
 	document.body.classList.add("has-selection");
 	updateButtonState();
-	if (useDummyInput) {
-		let dummyInput = document.getElementById("dummyinput");
-		if (!isIos) {
-			// Reposition the input field, to avoid an annoying scroll-into-
-			// view effect once the current event handler returns on Firefox
-			// and Chrome-on-Android. The 25 px offset hides the 10x10 input
-			// field behind the 42x42 td cell, while keeping it away from the
-			// top of the screen to avoid scroll-into-view from happening due
-			// to the input field being near the end of the viewport.
-			dummyInput.style.left = (selectedTd.offsetLeft + 25) + "px";
-			dummyInput.style.top = (selectedTd.offsetTop + 25) + "px";
-		}
-		if (document.activeElement !== dummyInput) {
-			dummyInput.focus({preventScroll: true});
-		}
+	let dummyInput = document.getElementById("dummyinput");
+	if ("ontouchstart" in document.documentElement && !isIos) {
+		// Reposition the input field, to avoid an annoying scroll-into-
+		// view effect once the current event handler returns on Firefox
+		// and Chrome-on-Android. The 25 px offset hides the 10x10 input
+		// field behind the 42x42 td cell, while keeping it away from the
+		// top of the screen to avoid scroll-into-view from happening due
+		// to the input field being near the end of the viewport.
+		dummyInput.style.left = (selectedTd.offsetLeft + 25) + "px";
+		dummyInput.style.top = (selectedTd.offsetTop + 25) + "px";
+	}
+	if (document.activeElement !== dummyInput) {
+		dummyInput.focus({preventScroll: true});
 	}
 }
 
@@ -825,7 +822,7 @@ function init() {
 					return;
 				} else {
 					let fatal = (word.length !== nextClued.length);
-					addError("Incorrect clue: saw " + word + ", expected " + nextClued, fatal);
+					addError("Incorrect clue: saw " + nextClued + ", expected " + word, fatal);
 				}
 			}
 		}
@@ -1118,13 +1115,8 @@ function init() {
 	}
 
 	let dummyInput = document.getElementById("dummyinput");
-	if (useDummyInput) {
-		dummyInput.value = '';
-		dummyInput.addEventListener("input", handleInput);
-	}
-	else {
-		dummyInput.remove();
-	}
+	dummyInput.value = '';
+	dummyInput.addEventListener("input", handleInput);
 	document.addEventListener("keydown", handleKeyDown);
 	document.addEventListener("keyup", handleKeyup);
 
